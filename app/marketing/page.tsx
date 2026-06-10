@@ -40,7 +40,7 @@ function Hero() {
     <section className="relative bg-slate-900 overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1800&q=80"
+          src="/images/salon-interior.jpg"
           alt="Modern salon interior"
           fill
           className="object-cover opacity-25"
@@ -89,8 +89,8 @@ function Hero() {
           <div className="hidden lg:block relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
               <Image
-                src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80"
-                alt="Stylist at work"
+                src="/images/salon-owner.jpg"
+                alt="Salon owner managing their business"
                 width={600}
                 height={420}
                 className="object-cover w-full h-[380px]"
@@ -167,10 +167,10 @@ function Features() {
 
         <div className="relative rounded-3xl overflow-hidden mb-12 h-64 sm:h-80">
           <Image
-            src="https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1400&q=80"
-            alt="Salon professional at work"
+            src="/images/salon-interior.jpg"
+            alt="Salon interior"
             fill
-            className="object-cover"
+            className="object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 to-transparent flex items-center px-8 sm:px-12">
             <div>
@@ -205,11 +205,11 @@ function Features() {
 function HowItWorks() {
   const steps = [
     { n: '01', title: 'Sign up in 2 minutes', desc: 'Enter your salon name, phone number and email. No credit card needed.',
-      img: 'https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=600&q=80', alt: 'Salon owner signing up' },
+      img: '/images/salon-owner.jpg', alt: 'Salon owner signing up on laptop' },
     { n: '02', title: 'Set up your services & staff', desc: 'Add your menu, staff members and working hours. Takes about 10 minutes.',
-      img: 'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?auto=format&fit=crop&w=600&q=80', alt: 'Staff at a salon' },
+      img: '/images/team.jpg', alt: 'Team setting up the platform' },
     { n: '03', title: 'Share your booking link', desc: 'Clients book online. You get notified. Everyone shows up on time.',
-      img: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=600&q=80', alt: 'Happy salon client' },
+      img: '/images/salon-interior.jpg', alt: 'Beautiful salon ready for clients' },
   ]
   return (
     <section className="py-24 px-4 sm:px-6 bg-white">
@@ -253,8 +253,8 @@ function Testimonials() {
       <div className="max-w-6xl mx-auto">
         <div className="relative rounded-3xl overflow-hidden h-56 sm:h-72 mb-14">
           <Image
-            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=80"
-            alt="Happy salon clients"
+            src="/images/salon-owner.jpg"
+            alt="Salon owner happy with GlowDesk"
             fill
             className="object-cover object-top"
           />
@@ -370,8 +370,8 @@ function CTA() {
     <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&w=1400&q=80"
-          alt="Salon atmosphere"
+          src="/images/salon-interior.jpg"
+          alt="Beautiful salon interior"
           fill
           className="object-cover"
         />
