@@ -8,13 +8,15 @@ import { auth } from '@/lib/firebase'
 
 export default function SignupPage() {
   const router = useRouter()
-  const [step, setStep]           = useState<1 | 2>(1)
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState('')
-  const [showPass, setShowPass]   = useState(false)
+  const [step, setStep]                     = useState<1 | 2>(1)
+  const [loading, setLoading]               = useState(false)
+  const [error, setError]                   = useState('')
+  const [showPass, setShowPass]             = useState(false)
 
   // Step 1 — salon info
-  const [salonName, setSalonName] = useState('')
+  const [salonName, setSalonName]           = useState('')
+  const [phone, setPhone]                   = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
 
   // Step 2 — owner account
   const [ownerName, setOwnerName] = useState('')
@@ -30,7 +32,7 @@ export default function SignupPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ salonName, ownerName, email, password }),
+        body: JSON.stringify({ salonName, phone, whatsappNumber, ownerName, email, password }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Signup failed'); setLoading(false); return }
@@ -87,7 +89,7 @@ export default function SignupPage() {
               <>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">Set up your salon</h1>
                 <p className="text-sm text-gray-500 mb-6">Tell us your salon name to get started.</p>
-                <form onSubmit={e => { e.preventDefault(); if (salonName.trim()) setStep(2) }} className="space-y-4">
+                <form onSubmit={e => { e.preventDefault(); if (salonName.trim() && phone.trim()) setStep(2) }} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Salon / Business Name *</label>
                     <input
@@ -99,7 +101,28 @@ export default function SignupPage() {
                       className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                     />
                   </div>
-                  <button type="submit" disabled={!salonName.trim()} className="w-full h-11 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
+                    <input
+                      required
+                      type="tel"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      placeholder="e.g. +233 24 000 0000"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">WhatsApp Number <span className="text-gray-400 font-normal">(optional — if different)</span></label>
+                    <input
+                      type="tel"
+                      value={whatsappNumber}
+                      onChange={e => setWhatsappNumber(e.target.value)}
+                      placeholder="e.g. +233 54 000 0000"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    />
+                  </div>
+                  <button type="submit" disabled={!salonName.trim() || !phone.trim()} className="w-full h-11 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                 </form>

@@ -74,10 +74,12 @@ export async function isTrialActive(tenant: Tenant): Promise<boolean> {
 
 // Called from signup: creates Firebase Auth user + tenant + owner user doc
 export async function signUpNewTenant(data: {
-  salonName: string
-  ownerName: string
-  email: string
-  password: string
+  salonName:      string
+  phone:          string
+  whatsappNumber: string
+  ownerName:      string
+  email:          string
+  password:       string
 }): Promise<{ tenantId: string; uid: string }> {
   // Create Firebase Auth user
   const userRecord = await adminAuth.createUser({
@@ -100,13 +102,14 @@ export async function signUpNewTenant(data: {
 
   // Create initial salon settings for this tenant
   await adminDb.collection('settings').doc(tenant.id).set({
-    tenantId:  tenant.id,
-    salonName: data.salonName,
-    tagline:   '',
-    phone:     '',
-    address:   '',
-    email:     data.email,
-    depositPct: 30,
+    tenantId:       tenant.id,
+    salonName:      data.salonName,
+    tagline:        '',
+    phone:          data.phone,
+    whatsappNumber: data.whatsappNumber,
+    address:        '',
+    email:          data.email,
+    depositPct:     30,
   })
 
   return { tenantId: tenant.id, uid: userRecord.uid }

@@ -17,13 +17,14 @@ export const DEFAULT_WORKING_HOURS: WorkingHours = {
 }
 
 export type SalonSettings = {
-  salonName:    string
-  tagline:      string
-  phone:        string
-  address:      string
-  email:        string
-  depositPct:   number
-  workingHours: WorkingHours
+  salonName:      string
+  tagline:        string
+  phone:          string
+  whatsappNumber: string
+  address:        string
+  email:          string
+  depositPct:     number
+  workingHours:   WorkingHours
 }
 
 export type TenantPlan = 'trial' | 'starter' | 'pro' | 'enterprise'

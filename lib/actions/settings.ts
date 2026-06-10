@@ -7,13 +7,14 @@ import type { SalonSettings } from '@/lib/types'
 export type { DayHours, WorkingHours, SalonSettings } from '@/lib/types'
 
 const DEFAULTS = {
-  salonName:    '',
-  tagline:      '',
-  phone:        '',
-  address:      '',
-  email:        '',
-  depositPct:   30,
-  workingHours: DEFAULT_WORKING_HOURS,
+  salonName:      '',
+  tagline:        '',
+  phone:          '',
+  whatsappNumber: '',
+  address:        '',
+  email:          '',
+  depositPct:     30,
+  workingHours:   DEFAULT_WORKING_HOURS,
 }
 
 export async function getSalonSettings(): Promise<SalonSettings> {

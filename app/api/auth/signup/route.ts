@@ -3,10 +3,12 @@ import { z } from 'zod'
 import { signUpNewTenant } from '@/lib/actions/tenants'
 
 const Schema = z.object({
-  salonName: z.string().min(1).max(100).trim(),
-  ownerName: z.string().min(1).max(100).trim(),
-  email:     z.string().email(),
-  password:  z.string().min(6),
+  salonName:      z.string().min(1).max(100).trim(),
+  phone:          z.string().min(1).max(30).trim(),
+  whatsappNumber: z.string().max(30).trim().optional().default(''),
+  ownerName:      z.string().min(1).max(100).trim(),
+  email:          z.string().email(),
+  password:       z.string().min(6),
 })
 
 export async function POST(req: Request) {
