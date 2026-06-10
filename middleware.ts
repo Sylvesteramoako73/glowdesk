@@ -22,10 +22,10 @@ export function middleware(req: NextRequest) {
   // ── Marketing domain: rewrite into _site folder ──────────────────────────
   if (MARKETING_HOSTS.has(hostname)) {
     // Already an internal _site path — pass through
-    if (pathname.startsWith('/_site')) return NextResponse.next()
+    if (pathname.startsWith('/marketing')) return NextResponse.next()
 
     const url = req.nextUrl.clone()
-    url.pathname = pathname === '/' ? '/_site' : `/_site${pathname}`
+    url.pathname = pathname === '/' ? '/marketing' : `/marketing${pathname}`
     return NextResponse.rewrite(url)
   }
 
@@ -33,7 +33,7 @@ export function middleware(req: NextRequest) {
   if (pathname.startsWith('/api')) return NextResponse.next()
 
   // Internal _site paths accessed directly — allow
-  if (pathname.startsWith('/_site')) return NextResponse.next()
+  if (pathname.startsWith('/marketing')) return NextResponse.next()
 
   // Tenant booking subdomains (e.g. salonname.glowdeskapp.online)
   const isProductionSubdomain =
