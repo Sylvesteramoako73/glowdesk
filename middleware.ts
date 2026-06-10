@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Public routes that never require a session
+// Marketing domains — serve the _site landing pages, no auth needed
+const MARKETING_HOSTS = new Set(['glowdeskapp.online', 'www.glowdeskapp.online'])
+
+// Public routes that never require a session (on app domain)
 const PUBLIC = ['/login', '/signup', '/admin-login', '/api/auth', '/api/book', '/book', '/admin', '/api/admin']
 
 function isPublic(pathname: string) {
@@ -16,14 +19,21 @@ export function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Marketing domain — everything is public, rewrites already handled by next.config
+  if (MARKETING_HOSTS.has(hostname)) {
+    return NextResponse.next()
+  }
+
   // API routes — let through (they do their own auth)
   if (pathname.startsWith('/api')) return NextResponse.next()
 
-  // Subdomain detection — production domains only, never on vercel.app
-  // e.g. hairport.glowdesk.app or hairport.glowdesk.app → slug = "hairport"
+  // Internal _site paths — public (accessed via rewrite from marketing domain)
+  if (pathname.startsWith('/_site')) return NextResponse.next()
+
+  // Tenant booking subdomains (e.g. salonname.glowdeskapp.online)
   const isProductionSubdomain =
     (hostname.endsWith('.glowdesk.app') && hostname !== 'glowdesk.app' && hostname !== 'www.glowdesk.app') ||
-    (hostname.endsWith('.glowdesk.app')        && hostname !== 'glowdesk.app'        && hostname !== 'www.glowdesk.app')
+    (hostname.endsWith('.glowdeskapp.online') && hostname !== 'glowdeskapp.online' && hostname !== 'www.glowdeskapp.online' && hostname !== 'app.glowdeskapp.online')
   if (isProductionSubdomain) {
     const slug = hostname.split('.')[0]
     const res  = NextResponse.next()
