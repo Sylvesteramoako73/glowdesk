@@ -1,9 +1,10 @@
 'use client'
 import { useState } from 'react'
 import Image from 'next/image'
-import { Eye, EyeOff, ArrowRight, Loader2, Check } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, Loader2, Check, Sparkles } from 'lucide-react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+
 export default function LoginPage() {
   const [tab, setTab]           = useState<'signin' | 'signup'>('signin')
 
@@ -85,120 +86,155 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-2">
-            <Image src="/logo.png" alt="GlowDesk" width={180} height={60} className="h-14 w-auto object-contain" priority />
-          </div>
-          <p className="text-sm text-gray-500 mt-1">Salon Management System</p>
+    <div className="min-h-screen flex">
+      {/* ── Left brand panel (desktop only) ── */}
+      <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] bg-teal-600 flex-col justify-between p-10 shrink-0">
+        <div>
+          <Image src="/logo.png" alt="GlowDesk" width={160} height={52} className="h-12 w-auto object-contain brightness-0 invert" priority />
         </div>
-
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          {/* Tabs */}
-          <div className="grid grid-cols-2 border-b border-gray-200">
-            {(['signin', 'signup'] as const).map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`py-3 text-sm font-medium transition-colors ${
-                  tab === t
-                    ? 'text-gray-900 border-b-2 border-gray-900 -mb-px bg-white'
-                    : 'text-gray-400 hover:text-gray-600 bg-gray-50'
-                }`}
-              >
-                {t === 'signin' ? 'Sign In' : 'Sign Up'}
-              </button>
+        <div className="space-y-6">
+          <div>
+            <p className="text-teal-100 text-sm font-medium uppercase tracking-widest mb-3">Built for salons</p>
+            <h2 className="text-white text-3xl font-bold leading-snug">
+              Run your salon.<br />Not spreadsheets.
+            </h2>
+            <p className="text-teal-200 mt-3 text-sm leading-relaxed">
+              Appointments, clients, staff, payroll, inventory — all in one place. Start your 14-day free trial today.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {[
+              'Appointments & walk-ins',
+              'Staff & payroll management',
+              'Client history & loyalty',
+              'Analytics & daily reports',
+            ].map(f => (
+              <div key={f} className="flex items-center gap-3">
+                <div className="h-5 w-5 rounded-full bg-teal-500 flex items-center justify-center shrink-0">
+                  <Check className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-teal-100 text-sm">{f}</span>
+              </div>
             ))}
           </div>
+        </div>
+        <p className="text-teal-300 text-xs">© {new Date().getFullYear()} GlowDesk</p>
+      </div>
 
-          <div className="p-6">
-            {/* ── Sign In ── */}
-            {tab === 'signin' && (
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div>
-                  <label className="form-label">Email address</label>
-                  <input type="email" value={siEmail} onChange={e => setSiEmail(e.target.value)}
-                    placeholder="you@salon.com" className="form-input w-full" required autoFocus />
-                </div>
-                <div>
-                  <label className="form-label">Password</label>
-                  <div className="relative mt-1.5">
-                    <input type={siShow ? 'text' : 'password'} value={siPass} onChange={e => setSiPass(e.target.value)}
-                      placeholder="••••••••" className="form-input w-full pr-10" required />
-                    <button type="button" onClick={() => setSiShow(p => !p)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                      {siShow ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                </div>
-                {siError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{siError}</p>}
-                <button type="submit" disabled={siLoading} className="btn-primary w-full justify-center disabled:opacity-50">
-                  {siLoading
-                    ? <><span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Signing in…</>
-                    : <>Sign in <ArrowRight className="h-4 w-4" /></>}
+      {/* ── Right form panel ── */}
+      <div className="flex-1 flex flex-col bg-gray-50">
+        {/* Mobile header */}
+        <div className="lg:hidden bg-teal-600 px-6 py-5 flex items-center gap-3">
+          <Image src="/logo.png" alt="GlowDesk" width={120} height={40} className="h-9 w-auto object-contain brightness-0 invert" priority />
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-sm">
+            <div className="mb-6">
+              <h1 className="text-xl font-bold text-gray-900">
+                {tab === 'signin' ? 'Welcome back' : 'Start your free trial'}
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                {tab === 'signin' ? 'Sign in to your salon dashboard.' : '14 days free — no credit card needed.'}
+              </p>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-1 p-1 bg-gray-200 rounded-lg mb-6">
+              {(['signin', 'signup'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                    tab === t
+                      ? 'bg-white text-teal-700 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {t === 'signin' ? 'Sign In' : 'Sign Up'}
                 </button>
-              </form>
-            )}
+              ))}
+            </div>
 
-            {/* ── Sign Up ── */}
-            {tab === 'signup' && (
-              <form onSubmit={handleSignUp} className="space-y-3">
-                <div>
-                  <label className="form-label">Salon / Business Name</label>
-                  <input value={salonName} onChange={e => setSalonName(e.target.value)}
-                    placeholder="e.g. Glow Beauty Studio" className="form-input w-full" required autoFocus />
-                </div>
-                <div>
-                  <label className="form-label">Phone Number</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-                    placeholder="e.g. +233 24 000 0000" className="form-input w-full" required />
-                </div>
-                <div>
-                  <label className="form-label">WhatsApp Number <span className="text-gray-400 font-normal">(optional)</span></label>
-                  <input type="tel" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)}
-                    placeholder="e.g. +233 54 000 0000" className="form-input w-full" />
-                </div>
-                <div>
-                  <label className="form-label">Your Name</label>
-                  <input value={ownerName} onChange={e => setOwnerName(e.target.value)}
-                    placeholder="Full name" className="form-input w-full" required />
-                </div>
-                <div>
-                  <label className="form-label">Email</label>
-                  <input type="email" value={suEmail} onChange={e => setSuEmail(e.target.value)}
-                    placeholder="you@salon.com" className="form-input w-full" required />
-                </div>
-                <div>
-                  <label className="form-label">Password</label>
-                  <div className="relative mt-1.5">
-                    <input type={suShow ? 'text' : 'password'} value={suPass} onChange={e => setSuPass(e.target.value)}
-                      placeholder="Min. 6 characters" className="form-input w-full pr-10" required />
-                    <button type="button" onClick={() => setSuShow(p => !p)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                      {suShow ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
+            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              {/* ── Sign In ── */}
+              {tab === 'signin' && (
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div>
+                    <label className="form-label">Email address</label>
+                    <input type="email" value={siEmail} onChange={e => setSiEmail(e.target.value)}
+                      placeholder="you@salon.com" className="form-input w-full" required autoFocus />
                   </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg px-3 py-2.5 text-xs text-gray-500 space-y-1">
-                  <p className="font-medium text-gray-700">Free for 14 days — no card needed</p>
-                  {['Unlimited appointments & clients', 'Staff, services & inventory', 'Analytics & reporting'].map(f => (
-                    <div key={f} className="flex items-center gap-1.5">
-                      <Check className="h-3 w-3 text-green-600 shrink-0" /> {f}
+                  <div>
+                    <label className="form-label">Password</label>
+                    <div className="relative">
+                      <input type={siShow ? 'text' : 'password'} value={siPass} onChange={e => setSiPass(e.target.value)}
+                        placeholder="••••••••" className="form-input w-full pr-10" required />
+                      <button type="button" onClick={() => setSiShow(p => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        {siShow ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                  {siError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{siError}</p>}
+                  <button type="submit" disabled={siLoading}
+                    className="w-full h-10 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                    {siLoading
+                      ? <><span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Signing in…</>
+                      : <>Sign in <ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                </form>
+              )}
 
-                {suError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{suError}</p>}
-                <button type="submit" disabled={suLoading} className="btn-primary w-full justify-center disabled:opacity-50">
-                  {suLoading
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating account…</>
-                    : <>Create my salon <ArrowRight className="h-4 w-4" /></>}
-                </button>
-              </form>
-            )}
+              {/* ── Sign Up ── */}
+              {tab === 'signup' && (
+                <form onSubmit={handleSignUp} className="space-y-3">
+                  <div>
+                    <label className="form-label">Salon / Business Name</label>
+                    <input value={salonName} onChange={e => setSalonName(e.target.value)}
+                      placeholder="e.g. Glow Beauty Studio" className="form-input w-full" required autoFocus />
+                  </div>
+                  <div>
+                    <label className="form-label">Phone Number</label>
+                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                      placeholder="e.g. +233 24 000 0000" className="form-input w-full" required />
+                  </div>
+                  <div>
+                    <label className="form-label">WhatsApp Number <span className="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="tel" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)}
+                      placeholder="e.g. +233 54 000 0000" className="form-input w-full" />
+                  </div>
+                  <div>
+                    <label className="form-label">Your Name</label>
+                    <input value={ownerName} onChange={e => setOwnerName(e.target.value)}
+                      placeholder="Full name" className="form-input w-full" required />
+                  </div>
+                  <div>
+                    <label className="form-label">Email</label>
+                    <input type="email" value={suEmail} onChange={e => setSuEmail(e.target.value)}
+                      placeholder="you@salon.com" className="form-input w-full" required />
+                  </div>
+                  <div>
+                    <label className="form-label">Password</label>
+                    <div className="relative">
+                      <input type={suShow ? 'text' : 'password'} value={suPass} onChange={e => setSuPass(e.target.value)}
+                        placeholder="Min. 6 characters" className="form-input w-full pr-10" required />
+                      <button type="button" onClick={() => setSuShow(p => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        {suShow ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  {suError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{suError}</p>}
+                  <button type="submit" disabled={suLoading}
+                    className="w-full h-10 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-1">
+                    {suLoading
+                      ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating account…</>
+                      : <><Sparkles className="h-4 w-4" /> Start free trial</>}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -10,15 +10,15 @@
     --card-foreground: 222 47% 11%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 222 47% 11%;
-    --primary: 222 47% 11%;
+    --ring: 175 84% 32%;
+    --primary: 175 84% 32%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 14% 96%;
     --secondary-foreground: 222 47% 11%;
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
-    --accent: 220 14% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 175 84% 32%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --radius: 0.375rem;
@@ -95,18 +95,18 @@
 
   .form-input {
     @apply w-full h-9 px-3 text-sm bg-white border border-gray-200 rounded-md
-           placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900
-           focus:border-gray-900 transition-colors
+           placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-teal-500
+           focus:border-teal-500 transition-colors
            dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100
-           dark:placeholder:text-gray-500 dark:focus:ring-gray-400 dark:focus:border-gray-400;
+           dark:placeholder:text-gray-500 dark:focus:ring-teal-400 dark:focus:border-teal-400;
   }
   .form-label {
     @apply block text-xs font-medium text-gray-700 mb-1.5 dark:text-gray-300;
   }
   .btn-primary {
-    @apply inline-flex items-center gap-2 h-9 px-4 bg-gray-900 text-white text-sm font-medium
-           rounded-md hover:bg-gray-800 transition-colors cursor-pointer select-none
-           dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200;
+    @apply inline-flex items-center gap-2 h-9 px-4 bg-teal-600 text-white text-sm font-medium
+           rounded-md hover:bg-teal-700 transition-colors cursor-pointer select-none
+           dark:bg-teal-500 dark:hover:bg-teal-400;
   }
   .btn-secondary {
     @apply inline-flex items-center gap-2 h-9 px-4 bg-white text-gray-700 text-sm font-medium
@@ -115,8 +115,8 @@
   }
   .btn-ghost {
     @apply inline-flex items-center gap-2 h-9 px-3 text-gray-600 text-sm font-medium
-           rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer select-none
-           dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100;
+           rounded-md hover:bg-teal-50 hover:text-teal-700 transition-colors cursor-pointer select-none
+           dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-teal-400;
   }
   .btn-danger {
     @apply inline-flex items-center gap-2 h-9 px-4 bg-red-600 text-white text-sm font-medium

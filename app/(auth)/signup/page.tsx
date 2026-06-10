@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Eye, EyeOff, ArrowRight, Check, Loader2, Scissors } from 'lucide-react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
@@ -57,7 +56,7 @@ export default function SignupPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gray-900 flex items-center justify-center">
+          <div className="h-8 w-8 rounded-lg bg-teal-600 flex items-center justify-center">
             <Scissors className="h-4 w-4 text-white" />
           </div>
           <span className="font-bold text-gray-900 text-lg">GlowDesk</span>
@@ -72,14 +71,14 @@ export default function SignupPage() {
             {[1, 2].map(n => (
               <div key={n} className="flex items-center gap-2 flex-1">
                 <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
-                  step > n ? 'bg-gray-900 text-white' : step === n ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500'
+                  step > n ? 'bg-teal-600 text-white' : step === n ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   {step > n ? <Check className="h-4 w-4" /> : n}
                 </div>
                 <span className={`text-sm ${step >= n ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
                   {n === 1 ? 'Your salon' : 'Your account'}
                 </span>
-                {n < 2 && <div className={`flex-1 h-px ${step > n ? 'bg-gray-900' : 'bg-gray-200'}`} />}
+                {n < 2 && <div className={`flex-1 h-px ${step > n ? 'bg-teal-600' : 'bg-gray-200'}`} />}
               </div>
             ))}
           </div>
@@ -98,7 +97,7 @@ export default function SignupPage() {
                       value={salonName}
                       onChange={e => setSalonName(e.target.value)}
                       placeholder="e.g. Glow Beauty Studio"
-                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -109,7 +108,7 @@ export default function SignupPage() {
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
                       placeholder="e.g. +233 24 000 0000"
-                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -119,10 +118,10 @@ export default function SignupPage() {
                       value={whatsappNumber}
                       onChange={e => setWhatsappNumber(e.target.value)}
                       placeholder="e.g. +233 54 000 0000"
-                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
-                  <button type="submit" disabled={!salonName.trim() || !phone.trim()} className="w-full h-11 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
+                  <button type="submit" disabled={!salonName.trim() || !phone.trim()} className="w-full h-11 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                 </form>
@@ -145,7 +144,7 @@ export default function SignupPage() {
                       value={ownerName}
                       onChange={e => setOwnerName(e.target.value)}
                       placeholder="Full name"
-                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -156,7 +155,7 @@ export default function SignupPage() {
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="you@salon.com"
-                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      className="w-full h-11 px-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -168,7 +167,7 @@ export default function SignupPage() {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         placeholder="Min. 6 characters"
-                        className="w-full h-11 px-4 pr-11 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                        className="w-full h-11 px-4 pr-11 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                       <button type="button" onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                         {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -189,7 +188,7 @@ export default function SignupPage() {
                     <button type="button" onClick={() => setStep(1)} className="h-11 px-4 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                       Back
                     </button>
-                    <button type="submit" disabled={loading} className="flex-1 h-11 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
+                    <button type="submit" disabled={loading} className="flex-1 h-11 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
                       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
                       Create my salon
                     </button>

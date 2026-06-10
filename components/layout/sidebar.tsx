@@ -68,8 +68,8 @@ export function Sidebar({ user }: SidebarProps) {
         className={cn(
           'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
           active
-            ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
+            ? 'bg-teal-600 text-white dark:bg-teal-500 dark:text-white'
+            : 'text-gray-600 hover:bg-teal-50 hover:text-teal-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-teal-400'
         )}
       >
         <Icon className="h-5 w-5 shrink-0" />
@@ -105,7 +105,7 @@ export function Sidebar({ user }: SidebarProps) {
       {/* User + Logout */}
       <div className="border-t border-gray-200 dark:border-gray-700 p-3">
         <div className="flex items-center gap-3 px-2 py-2 rounded-md">
-          <div className="h-8 w-8 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-semibold flex items-center justify-center shrink-0">
+          <div className="h-8 w-8 rounded-full bg-teal-600 dark:bg-teal-500 text-white text-xs font-semibold flex items-center justify-center shrink-0">
             {user ? getInitials(user.name) : '…'}
           </div>
           <div className="flex-1 min-w-0">
