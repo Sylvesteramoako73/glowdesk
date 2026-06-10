@@ -21,8 +21,10 @@ export function middleware(req: NextRequest) {
 
   // ── Marketing domain: rewrite into _site folder ──────────────────────────
   if (MARKETING_HOSTS.has(hostname)) {
-    // Already an internal _site path — pass through
-    if (pathname.startsWith('/marketing')) return NextResponse.next()
+    // Already an internal path or a static public asset — pass through
+    if (pathname.startsWith('/marketing') || pathname.startsWith('/images') || pathname.startsWith('/fonts') || pathname.startsWith('/logo')) {
+      return NextResponse.next()
+    }
 
     const url = req.nextUrl.clone()
     url.pathname = pathname === '/' ? '/marketing' : `/marketing${pathname}`
