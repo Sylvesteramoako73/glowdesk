@@ -15,13 +15,15 @@ export default function LoginPage() {
   const [siError, setSiError]   = useState('')
 
   // Sign up state
-  const [salonName, setSalonName] = useState('')
-  const [ownerName, setOwnerName] = useState('')
-  const [suEmail, setSuEmail]   = useState('')
-  const [suPass, setSuPass]     = useState('')
-  const [suShow, setSuShow]     = useState(false)
-  const [suLoading, setSuLoading] = useState(false)
-  const [suError, setSuError]   = useState('')
+  const [salonName, setSalonName]           = useState('')
+  const [phone, setPhone]                   = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [ownerName, setOwnerName]           = useState('')
+  const [suEmail, setSuEmail]               = useState('')
+  const [suPass, setSuPass]                 = useState('')
+  const [suShow, setSuShow]                 = useState(false)
+  const [suLoading, setSuLoading]           = useState(false)
+  const [suError, setSuError]               = useState('')
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault()
@@ -59,7 +61,7 @@ export default function LoginPage() {
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ salonName, ownerName, email: suEmail, password: suPass }),
+        body: JSON.stringify({ salonName, phone, whatsappNumber, ownerName, email: suEmail, password: suPass }),
       })
       const data = await res.json()
       if (!res.ok) { setSuError(data.error ?? 'Signup failed'); setSuLoading(false); return }
@@ -147,6 +149,16 @@ export default function LoginPage() {
                   <label className="form-label">Salon / Business Name</label>
                   <input value={salonName} onChange={e => setSalonName(e.target.value)}
                     placeholder="e.g. Glow Beauty Studio" className="form-input w-full" required autoFocus />
+                </div>
+                <div>
+                  <label className="form-label">Phone Number</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                    placeholder="e.g. +233 24 000 0000" className="form-input w-full" required />
+                </div>
+                <div>
+                  <label className="form-label">WhatsApp Number <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input type="tel" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)}
+                    placeholder="e.g. +233 54 000 0000" className="form-input w-full" />
                 </div>
                 <div>
                   <label className="form-label">Your Name</label>
