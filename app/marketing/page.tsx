@@ -239,11 +239,14 @@ function HowItWorks() {
 
 // ─── Testimonials ─────────────────────────────────────────────────────────────
 const TESTIMONIALS = [
-  { name: 'Abena M.', role: 'Owner · Glow Beauty Studio, Accra', avatar: 'https://i.pravatar.cc/80?img=47',
+  { name: 'Abena M.', role: 'Owner · Glow Beauty Studio, Accra',
+    avatar: 'https://api.dicebear.com/9.x/micah/png?seed=AbenaMensah&skinColor=brown&baseColor=brown',
     body: 'I used to manage everything on WhatsApp and a notebook. GlowDesk changed everything — I can see my revenue, my staff and my clients all in one place.' },
-  { name: 'Kwame A.', role: 'Manager · Prestige Cuts, Kumasi', avatar: 'https://i.pravatar.cc/80?img=12',
+  { name: 'Efua A.', role: 'Owner · Prestige Cuts, Kumasi',
+    avatar: 'https://api.dicebear.com/9.x/micah/png?seed=EfuaAsante&skinColor=darkBrown&baseColor=brown',
     body: 'The automatic appointment reminders alone saved us from at least 10 no-shows a month. Worth every pesewa.' },
-  { name: 'Ama S.', role: 'Owner · The Lash Studio, Takoradi', avatar: 'https://i.pravatar.cc/80?img=32',
+  { name: 'Ama S.', role: 'Owner · The Lash Studio, Takoradi',
+    avatar: 'https://api.dicebear.com/9.x/micah/png?seed=AmaSarkodie&skinColor=tawny&baseColor=brown',
     body: 'Setup was incredibly fast. Within an hour I had my services, staff and booking page all ready. My clients love it.' },
 ]
 
