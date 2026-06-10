@@ -2,8 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Calendar, Users, BarChart2, CreditCard, Zap, Package,
-  Check, ArrowRight, Star, Scissors, MessageSquare, Clock,
-  Shield, Globe, Smartphone,
+  Check, ArrowRight, Star, Scissors, Globe, Smartphone,
 } from 'lucide-react'
 
 const APP_URL = 'https://app.glowdeskapp.online'
@@ -38,53 +37,106 @@ function Nav() {
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 pt-24 pb-32 px-4 sm:px-6 text-center">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-teal-500/10 rounded-full blur-3xl" />
+    <section className="relative bg-slate-900 overflow-hidden">
+      <div className="absolute inset-0">
+        <Image
+          src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1800&q=80"
+          alt="Modern salon interior"
+          fill
+          className="object-cover opacity-25"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/60" />
       </div>
 
-      <div className="relative max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-6">
-          <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
-          Built for salons in Ghana &amp; West Africa
-        </div>
-
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-          Run your salon.<br />
-          <span className="text-teal-400">Not spreadsheets.</span>
-        </h1>
-
-        <p className="text-lg text-slate-300 max-w-xl mx-auto mb-10 leading-relaxed">
-          GlowDesk brings appointments, clients, staff, inventory, payroll and analytics together — so you spend less time managing and more time growing.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href={`${APP_URL}/signup`}
-            className="flex items-center gap-2 h-12 px-6 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-teal-900/40">
-            Start 14-day free trial <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link href={`${APP_URL}/login`}
-            className="flex items-center gap-2 h-12 px-6 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl text-sm transition-colors border border-white/10">
-            Sign in to your account
-          </Link>
-        </div>
-
-        <p className="text-xs text-slate-400 mt-4">No credit card required · Cancel anytime</p>
-      </div>
-
-      {/* Stats strip */}
-      <div className="relative max-w-2xl mx-auto mt-16 grid grid-cols-3 gap-4">
-        {[
-          { value: '500+', label: 'Salons onboarded' },
-          { value: '14 days', label: 'Free trial' },
-          { value: '24/7', label: 'Support' },
-        ].map(s => (
-          <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-white">{s.value}</p>
-            <p className="text-xs text-slate-400 mt-1">{s.label}</p>
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 lg:py-28">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left — text */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-6">
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
+              Built for salons in Ghana &amp; West Africa
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-5">
+              Run your salon.<br />
+              <span className="text-teal-400">Not spreadsheets.</span>
+            </h1>
+            <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
+              GlowDesk brings appointments, clients, staff, inventory, payroll and analytics together — so you spend less time managing and more time growing.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href={`${APP_URL}/signup`}
+                className="flex items-center justify-center gap-2 h-12 px-6 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-teal-900/40">
+                Start 14-day free trial <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href={`${APP_URL}/login`}
+                className="flex items-center justify-center gap-2 h-12 px-6 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl text-sm transition-colors border border-white/10">
+                Sign in to your account
+              </Link>
+            </div>
+            <p className="text-xs text-slate-400 mt-4">No credit card required · Cancel anytime</p>
+            <div className="flex items-center gap-6 mt-10">
+              {[{ value: '500+', label: 'Salons' }, { value: '14 days', label: 'Free trial' }, { value: '24/7', label: 'Support' }].map(s => (
+                <div key={s.label}>
+                  <p className="text-xl font-bold text-white">{s.value}</p>
+                  <p className="text-xs text-slate-400">{s.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
+
+          {/* Right — photo + floating stat card */}
+          <div className="hidden lg:block relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+              <Image
+                src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80"
+                alt="Stylist at work"
+                width={600}
+                height={420}
+                className="object-cover w-full h-[380px]"
+              />
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur rounded-xl p-4 shadow-xl">
+                <p className="text-xs text-gray-500 font-medium mb-2">Today&apos;s overview</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {[{ label: 'Revenue', value: 'GHS 1,240' }, { label: 'Bookings', value: '8' }, { label: 'Available', value: '3 staff' }].map(s => (
+                    <div key={s.label}>
+                      <p className="text-base font-bold text-gray-900">{s.value}</p>
+                      <p className="text-xs text-gray-400">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="absolute -top-4 -right-4 bg-teal-600 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg">
+              ✓ New booking confirmed
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Social proof strip ───────────────────────────────────────────────────────
+function SocialProof() {
+  const faces = [11, 12, 25, 32, 47, 65]
+  return (
+    <section className="bg-white border-b border-gray-100 py-8 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
+        <div className="flex -space-x-2">
+          {faces.map(n => (
+            <Image key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt="Salon owner" width={36} height={36}
+              className="rounded-full border-2 border-white object-cover" />
+          ))}
+        </div>
+        <div>
+          <div className="flex justify-center sm:justify-start gap-0.5 mb-1">
+            {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
+          </div>
+          <p className="text-sm text-gray-600">
+            Trusted by <span className="font-semibold text-gray-900">500+ salon owners</span> across West Africa
+          </p>
+        </div>
       </div>
     </section>
   )
@@ -92,51 +144,15 @@ function Hero() {
 
 // ─── Features ─────────────────────────────────────────────────────────────────
 const FEATURES = [
-  {
-    icon: Calendar, color: 'bg-teal-100 text-teal-600',
-    title: 'Smart Appointments',
-    desc: 'Online booking, walk-in management, automatic reminders. No double-bookings, ever.',
-  },
-  {
-    icon: Users, color: 'bg-blue-100 text-blue-600',
-    title: 'Client Management',
-    desc: 'Full client history, notes, loyalty tracking and a self-service portal for every customer.',
-  },
-  {
-    icon: CreditCard, color: 'bg-violet-100 text-violet-600',
-    title: 'Point of Sale',
-    desc: 'Sell services, products and gift cards. Accept cash or Paystack — invoices generated instantly.',
-  },
-  {
-    icon: Users, color: 'bg-amber-100 text-amber-600',
-    title: 'Staff & Payroll',
-    desc: 'Roles, schedules, commission tracking and payroll reports — all in one place.',
-  },
-  {
-    icon: BarChart2, color: 'bg-rose-100 text-rose-600',
-    title: 'Analytics',
-    desc: 'Daily revenue, staff performance, top services and client retention — always up to date.',
-  },
-  {
-    icon: Package, color: 'bg-green-100 text-green-600',
-    title: 'Inventory',
-    desc: 'Track product stock, get low-stock alerts, and manage supplier orders without a spreadsheet.',
-  },
-  {
-    icon: Zap, color: 'bg-indigo-100 text-indigo-600',
-    title: 'Automations',
-    desc: 'Automatic appointment reminders and re-engagement messages via WhatsApp or SMS.',
-  },
-  {
-    icon: Globe, color: 'bg-cyan-100 text-cyan-600',
-    title: 'Online Booking Page',
-    desc: 'Every salon gets a public booking page. Share the link — clients book themselves.',
-  },
-  {
-    icon: Smartphone, color: 'bg-orange-100 text-orange-600',
-    title: 'Multi-location',
-    desc: 'Manage multiple branches from one dashboard. Staff and data separated per location.',
-  },
+  { icon: Calendar,   color: 'bg-teal-100 text-teal-600',    title: 'Smart Appointments',  desc: 'Online booking, walk-in management, automatic reminders. No double-bookings, ever.' },
+  { icon: Users,      color: 'bg-blue-100 text-blue-600',    title: 'Client Management',   desc: 'Full client history, notes, loyalty tracking and a self-service portal for every customer.' },
+  { icon: CreditCard, color: 'bg-violet-100 text-violet-600',title: 'Point of Sale',       desc: 'Sell services, products and gift cards. Accept cash or Paystack — invoices generated instantly.' },
+  { icon: Users,      color: 'bg-amber-100 text-amber-600',  title: 'Staff & Payroll',      desc: 'Roles, schedules, commission tracking and payroll reports — all in one place.' },
+  { icon: BarChart2,  color: 'bg-rose-100 text-rose-600',    title: 'Analytics',           desc: 'Daily revenue, staff performance, top services and client retention — always up to date.' },
+  { icon: Package,    color: 'bg-green-100 text-green-600',  title: 'Inventory',           desc: 'Track product stock, get low-stock alerts, and manage supplier orders without a spreadsheet.' },
+  { icon: Zap,        color: 'bg-indigo-100 text-indigo-600',title: 'Automations',         desc: 'Automatic appointment reminders and re-engagement messages via WhatsApp or SMS.' },
+  { icon: Globe,      color: 'bg-cyan-100 text-cyan-600',    title: 'Online Booking Page', desc: 'Every salon gets a public booking page. Share the link — clients book themselves.' },
+  { icon: Smartphone, color: 'bg-orange-100 text-orange-600',title: 'Multi-location',      desc: 'Manage multiple branches from one dashboard. Staff and data separated per location.' },
 ]
 
 function Features() {
@@ -147,6 +163,23 @@ function Features() {
           <p className="text-teal-600 text-sm font-semibold uppercase tracking-widest mb-3">Everything you need</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">One tool for your whole salon</h2>
           <p className="text-gray-500 mt-3 max-w-xl mx-auto">Stop juggling WhatsApp, notebooks and Excel. GlowDesk replaces all of it.</p>
+        </div>
+
+        <div className="relative rounded-3xl overflow-hidden mb-12 h-64 sm:h-80">
+          <Image
+            src="https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1400&q=80"
+            alt="Salon professional at work"
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 to-transparent flex items-center px-8 sm:px-12">
+            <div>
+              <p className="text-teal-300 text-sm font-semibold mb-2">Purpose-built software</p>
+              <h3 className="text-white text-2xl sm:text-3xl font-bold max-w-sm leading-tight">
+                Everything your salon needs, nothing it doesn&apos;t.
+              </h3>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -171,22 +204,28 @@ function Features() {
 // ─── How it works ─────────────────────────────────────────────────────────────
 function HowItWorks() {
   const steps = [
-    { n: '01', title: 'Sign up in 2 minutes', desc: 'Enter your salon name, phone number and email. No credit card needed.' },
-    { n: '02', title: 'Set up your services & staff', desc: 'Add your menu, staff members and working hours. Takes about 10 minutes.' },
-    { n: '03', title: 'Share your booking link', desc: 'Clients book online. You get notified. Everyone shows up on time.' },
+    { n: '01', title: 'Sign up in 2 minutes', desc: 'Enter your salon name, phone number and email. No credit card needed.',
+      img: 'https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=600&q=80', alt: 'Salon owner signing up' },
+    { n: '02', title: 'Set up your services & staff', desc: 'Add your menu, staff members and working hours. Takes about 10 minutes.',
+      img: 'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?auto=format&fit=crop&w=600&q=80', alt: 'Staff at a salon' },
+    { n: '03', title: 'Share your booking link', desc: 'Clients book online. You get notified. Everyone shows up on time.',
+      img: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=600&q=80', alt: 'Happy salon client' },
   ]
   return (
     <section className="py-24 px-4 sm:px-6 bg-white">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="text-center mb-14">
           <p className="text-teal-600 text-sm font-semibold uppercase tracking-widest mb-3">Quick setup</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Up and running today</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map(s => (
-            <div key={s.n} className="text-center">
-              <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-teal-600 text-white text-xl font-bold mb-5 shadow-lg shadow-teal-200">
-                {s.n}
+            <div key={s.n} className="group">
+              <div className="relative rounded-2xl overflow-hidden h-48 mb-5 shadow-sm">
+                <Image src={s.img} alt={s.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div className="absolute top-3 left-3 h-9 w-9 rounded-xl bg-teal-600 text-white text-sm font-bold flex items-center justify-center shadow-lg">
+                  {s.n}
+                </div>
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">{s.title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
@@ -200,43 +239,43 @@ function HowItWorks() {
 
 // ─── Testimonials ─────────────────────────────────────────────────────────────
 const TESTIMONIALS = [
-  {
-    name: 'Abena M.',
-    role: 'Owner · Glow Beauty Studio, Accra',
-    body: 'I used to manage everything on WhatsApp and a notebook. GlowDesk changed everything — I can see my revenue, my staff and my clients all in one place.',
-  },
-  {
-    name: 'Kwame A.',
-    role: 'Manager · Prestige Cuts, Kumasi',
-    body: 'The automatic appointment reminders alone saved us from at least 10 no-shows a month. Worth every pesewa.',
-  },
-  {
-    name: 'Ama S.',
-    role: 'Owner · The Lash Studio, Takoradi',
-    body: 'Setup was incredibly fast. Within an hour I had my services, staff and booking page all ready. My clients love it.',
-  },
+  { name: 'Abena M.', role: 'Owner · Glow Beauty Studio, Accra', avatar: 'https://i.pravatar.cc/80?img=47',
+    body: 'I used to manage everything on WhatsApp and a notebook. GlowDesk changed everything — I can see my revenue, my staff and my clients all in one place.' },
+  { name: 'Kwame A.', role: 'Manager · Prestige Cuts, Kumasi', avatar: 'https://i.pravatar.cc/80?img=12',
+    body: 'The automatic appointment reminders alone saved us from at least 10 no-shows a month. Worth every pesewa.' },
+  { name: 'Ama S.', role: 'Owner · The Lash Studio, Takoradi', avatar: 'https://i.pravatar.cc/80?img=32',
+    body: 'Setup was incredibly fast. Within an hour I had my services, staff and booking page all ready. My clients love it.' },
 ]
 
 function Testimonials() {
   return (
     <section className="py-24 px-4 sm:px-6 bg-gray-50">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14">
-          <p className="text-teal-600 text-sm font-semibold uppercase tracking-widest mb-3">Loved by salons</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">What salon owners say</h2>
+      <div className="max-w-6xl mx-auto">
+        <div className="relative rounded-3xl overflow-hidden h-56 sm:h-72 mb-14">
+          <Image
+            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=80"
+            alt="Happy salon clients"
+            fill
+            className="object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-teal-900/70 flex flex-col items-center justify-center text-center px-6">
+            <p className="text-teal-300 text-sm font-semibold uppercase tracking-widest mb-3">Loved by salons</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">What salon owners say</h2>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {TESTIMONIALS.map(t => (
-            <div key={t.name} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div key={t.name} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
               <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                ))}
+                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed mb-5">"{t.body}"</p>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{t.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{t.role}</p>
+              <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-1">&ldquo;{t.body}&rdquo;</p>
+              <div className="flex items-center gap-3">
+                <Image src={t.avatar} alt={t.name} width={40} height={40} className="rounded-full object-cover" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{t.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{t.role}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -248,27 +287,12 @@ function Testimonials() {
 
 // ─── Pricing ──────────────────────────────────────────────────────────────────
 const PLANS = [
-  {
-    name: 'Starter',
-    price: 150,
-    desc: 'For small salons just getting started.',
-    features: ['Up to 3 staff', 'Appointments & clients', 'Point of sale', 'Basic analytics', 'Online booking page'],
-    highlight: false,
-  },
-  {
-    name: 'Pro',
-    price: 350,
-    desc: 'For growing salons that need more power.',
-    features: ['Unlimited staff', 'Everything in Starter', 'Payroll & expenses', 'Automations & SMS', 'Inventory management', 'Multi-location (up to 3)', 'Priority support'],
-    highlight: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 700,
-    desc: 'For salon chains and franchise businesses.',
-    features: ['Everything in Pro', 'Unlimited locations', 'Apprenticeship tracking', 'Custom integrations', 'Dedicated account manager', 'SLA support'],
-    highlight: false,
-  },
+  { name: 'Starter', price: 150, highlight: false, desc: 'For small salons just getting started.',
+    features: ['Up to 3 staff', 'Appointments & clients', 'Point of sale', 'Basic analytics', 'Online booking page'] },
+  { name: 'Pro', price: 350, highlight: true, desc: 'For growing salons that need more power.',
+    features: ['Unlimited staff', 'Everything in Starter', 'Payroll & expenses', 'Automations & SMS', 'Inventory management', 'Multi-location (up to 3)', 'Priority support'] },
+  { name: 'Enterprise', price: 700, highlight: false, desc: 'For salon chains and franchise businesses.',
+    features: ['Everything in Pro', 'Unlimited locations', 'Apprenticeship tracking', 'Custom integrations', 'Dedicated account manager', 'SLA support'] },
 ]
 
 function Pricing() {
@@ -280,13 +304,10 @@ function Pricing() {
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Pay as you grow</h2>
           <p className="text-gray-500 mt-3">All plans include a 14-day free trial. No credit card required.</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {PLANS.map(p => (
             <div key={p.name} className={`rounded-2xl p-7 border ${p.highlight ? 'bg-teal-600 border-teal-600 shadow-xl shadow-teal-200' : 'bg-white border-gray-200 shadow-sm'}`}>
-              {p.highlight && (
-                <span className="inline-block text-xs font-semibold text-teal-600 bg-white px-2.5 py-1 rounded-full mb-4">Most popular</span>
-              )}
+              {p.highlight && <span className="inline-block text-xs font-semibold text-teal-600 bg-white px-2.5 py-1 rounded-full mb-4">Most popular</span>}
               <h3 className={`font-bold text-lg mb-1 ${p.highlight ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
               <p className={`text-xs mb-5 ${p.highlight ? 'text-teal-100' : 'text-gray-500'}`}>{p.desc}</p>
               <div className="mb-6">
@@ -302,11 +323,7 @@ function Pricing() {
                 ))}
               </ul>
               <Link href={`${APP_URL}/signup`}
-                className={`flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-semibold transition-colors ${
-                  p.highlight
-                    ? 'bg-white text-teal-700 hover:bg-teal-50'
-                    : 'bg-teal-600 text-white hover:bg-teal-700'
-                }`}>
+                className={`flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-semibold transition-colors ${p.highlight ? 'bg-white text-teal-700 hover:bg-teal-50' : 'bg-teal-600 text-white hover:bg-teal-700'}`}>
                 Get started <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -350,9 +367,18 @@ function FAQ() {
 // ─── CTA ──────────────────────────────────────────────────────────────────────
 function CTA() {
   return (
-    <section className="py-24 px-4 sm:px-6 bg-teal-600">
-      <div className="max-w-2xl mx-auto text-center">
-        <Scissors className="h-10 w-10 text-teal-200 mx-auto mb-6" />
+    <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
+      <div className="absolute inset-0">
+        <Image
+          src="https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&w=1400&q=80"
+          alt="Salon atmosphere"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-teal-900/85" />
+      </div>
+      <div className="relative max-w-2xl mx-auto text-center">
+        <Scissors className="h-10 w-10 text-teal-300 mx-auto mb-6" />
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to grow your salon?</h2>
         <p className="text-teal-100 mb-8 leading-relaxed">Join hundreds of salons across Ghana and West Africa already using GlowDesk to run smarter businesses.</p>
         <Link href={`${APP_URL}/signup`}
@@ -411,6 +437,7 @@ export default function LandingPage() {
     <div className="font-sans bg-white text-gray-900">
       <Nav />
       <Hero />
+      <SocialProof />
       <Features />
       <HowItWorks />
       <Testimonials />
