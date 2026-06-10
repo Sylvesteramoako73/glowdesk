@@ -25,7 +25,7 @@ export async function GET() {
   const settingsDoc = await adminDb.collection('settings').doc(doc.id).get()
   const s           = settingsDoc.data() ?? {}
 
-  const { DEFAULT_WORKING_HOURS } = await import('@/lib/actions/settings')
+  const { DEFAULT_WORKING_HOURS } = await import('@/lib/types')
 
   return NextResponse.json(
     {

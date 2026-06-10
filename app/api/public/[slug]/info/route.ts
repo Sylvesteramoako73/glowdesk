@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
   const settingsDoc = await adminDb.collection('settings').doc(tenantId).get()
   const s           = settingsDoc.data() ?? {}
 
-  const { DEFAULT_WORKING_HOURS } = await import('@/lib/actions/settings')
+  const { DEFAULT_WORKING_HOURS } = await import('@/lib/types')
 
   return NextResponse.json(
     {

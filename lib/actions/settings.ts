@@ -5,7 +5,6 @@ import { getTenantId } from '@/lib/auth'
 import { DEFAULT_WORKING_HOURS } from '@/lib/types'
 import type { SalonSettings } from '@/lib/types'
 export type { DayHours, WorkingHours, SalonSettings } from '@/lib/types'
-export { DEFAULT_WORKING_HOURS } from '@/lib/types'
 
 const DEFAULTS = {
   salonName:    '',
