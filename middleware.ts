@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 // Marketing domains — rewrite to _site landing pages, no auth needed
 const MARKETING_HOSTS = new Set(['glowdeskapp.online', 'www.glowdeskapp.online'])
 
+// Public booking domain — book.glowdeskapp.online/{slug}
+const BOOKING_HOSTS = new Set(['book.glowdeskapp.online'])
+
 // Public routes on the app domain that never require a session
 const PUBLIC = ['/login', '/signup', '/admin-login', '/api/auth', '/api/book', '/book', '/admin', '/api/admin']
 
@@ -16,6 +19,21 @@ export function middleware(req: NextRequest) {
 
   // Pass through static assets regardless of host
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) {
+    return NextResponse.next()
+  }
+
+  // ── Public booking domain: book.glowdeskapp.online/{slug} → /book/{slug} ──
+  if (BOOKING_HOSTS.has(hostname)) {
+    // Static assets pass through untouched
+    if (pathname.startsWith('/images') || pathname.startsWith('/fonts') || pathname.startsWith('/logo')) {
+      return NextResponse.next()
+    }
+    // Rewrite /{slug} → /book/{slug}
+    if (!pathname.startsWith('/book') && !pathname.startsWith('/api')) {
+      const url = req.nextUrl.clone()
+      url.pathname = pathname === '/' ? '/book' : `/book${pathname}`
+      return NextResponse.rewrite(url)
+    }
     return NextResponse.next()
   }
 
