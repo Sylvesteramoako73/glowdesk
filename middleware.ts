@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // Public routes that never require a session
-const PUBLIC = ['/login', '/signup', '/api/auth', '/api/book', '/book']
+const PUBLIC = ['/login', '/signup', '/admin-login', '/api/auth', '/api/book', '/book', '/admin', '/api/admin']
 
 function isPublic(pathname: string) {
   return PUBLIC.some(p => pathname.startsWith(p))

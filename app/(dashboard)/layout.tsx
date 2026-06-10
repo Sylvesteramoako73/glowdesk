@@ -21,6 +21,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     user.tenantId ? getTenant(user.tenantId) : null,
   ])
 
+  // Enforce subscription for owners only
+  if (user.role === 'owner' && tenant) {
+    const isActive   = tenant.subscriptionStatus === 'active'
+    const isTrial    = tenant.subscriptionStatus === 'trialing' && new Date(tenant.trialEndsAt) > new Date()
+    if (!isActive && !isTrial) redirect('/pricing')
+  }
+
   const activeLocationId = await getEffectiveLocationId()
 
   // Trial banner: show for owners only when trialing

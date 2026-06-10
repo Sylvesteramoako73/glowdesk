@@ -1,5 +1,31 @@
 // Shared domain types — replaces @prisma/client types throughout the app
 
+export type DayHours = { open: string; close: string; closed: boolean }
+export type WorkingHours = {
+  monday: DayHours; tuesday: DayHours; wednesday: DayHours;
+  thursday: DayHours; friday: DayHours; saturday: DayHours; sunday: DayHours;
+}
+
+export const DEFAULT_WORKING_HOURS: WorkingHours = {
+  monday:    { open: '08:00', close: '18:00', closed: false },
+  tuesday:   { open: '08:00', close: '18:00', closed: false },
+  wednesday: { open: '08:00', close: '18:00', closed: false },
+  thursday:  { open: '08:00', close: '18:00', closed: false },
+  friday:    { open: '08:00', close: '18:00', closed: false },
+  saturday:  { open: '08:00', close: '16:00', closed: false },
+  sunday:    { open: '08:00', close: '16:00', closed: true  },
+}
+
+export type SalonSettings = {
+  salonName:    string
+  tagline:      string
+  phone:        string
+  address:      string
+  email:        string
+  depositPct:   number
+  workingHours: WorkingHours
+}
+
 export type TenantPlan = 'trial' | 'starter' | 'pro' | 'enterprise'
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'cancelled'
 

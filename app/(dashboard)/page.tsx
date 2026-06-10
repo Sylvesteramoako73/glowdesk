@@ -4,7 +4,12 @@ import { getDashboardStats, getTodayAppointments } from '@/lib/actions/appointme
 import { getStaffWithStats } from '@/lib/actions/staff'
 import { getSessionUser, getEffectiveLocationId } from '@/lib/auth'
 import { formatCurrency, getGreeting } from '@/lib/utils'
-import { BookingLinkCard } from '@/components/dashboard/booking-link-card'
+import dynamic from 'next/dynamic'
+const BookingLinkCard = dynamic(
+  () => import('@/components/dashboard/booking-link-card').then(m => ({ default: m.BookingLinkCard })),
+  { ssr: false }
+)
+import { OnboardingChecklist } from '@/components/dashboard/onboarding-checklist'
 
 function StatBox({ label, value, sub, up }: { label: string; value: string; sub: string; up?: boolean }) {
   return (
@@ -100,6 +105,7 @@ export default async function DashboardPage() {
 
         {/* Right column */}
         <div className="space-y-4">
+          <OnboardingChecklist />
           <div className="card">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
               <h2 className="font-semibold text-gray-900 text-sm">Staff Status</h2>

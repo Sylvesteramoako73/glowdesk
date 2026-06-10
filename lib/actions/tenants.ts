@@ -1,5 +1,4 @@
 'use server'
-import { revalidatePath } from 'next/cache'
 import { adminDb, adminAuth } from '@/lib/firebase-admin'
 import type { Tenant, TenantPlan } from '@/lib/types'
 
@@ -100,13 +99,14 @@ export async function signUpNewTenant(data: {
   })
 
   // Create initial salon settings for this tenant
-  await adminDb.collection('settings').doc(`${tenant.id}_salon`).set({
+  await adminDb.collection('settings').doc(tenant.id).set({
     tenantId:  tenant.id,
     salonName: data.salonName,
-    tagline:   'Where Beauty Meets Excellence',
+    tagline:   '',
     phone:     '',
     address:   '',
     email:     data.email,
+    depositPct: 30,
   })
 
   return { tenantId: tenant.id, uid: userRecord.uid }

@@ -2,34 +2,11 @@
 import { revalidatePath } from 'next/cache'
 import { adminDb } from '@/lib/firebase-admin'
 import { getTenantId } from '@/lib/auth'
+import { DEFAULT_WORKING_HOURS } from '@/lib/types'
+import type { SalonSettings } from '@/lib/types'
+export type { DayHours, WorkingHours, SalonSettings } from '@/lib/types'
 
-export type DayHours = { open: string; close: string; closed: boolean }
-export type WorkingHours = {
-  monday: DayHours; tuesday: DayHours; wednesday: DayHours;
-  thursday: DayHours; friday: DayHours; saturday: DayHours; sunday: DayHours;
-}
-
-export type SalonSettings = {
-  salonName:    string
-  tagline:      string
-  phone:        string
-  address:      string
-  email:        string
-  depositPct:   number
-  workingHours: WorkingHours
-}
-
-export const DEFAULT_WORKING_HOURS: WorkingHours = {
-  monday:    { open: '08:00', close: '18:00', closed: false },
-  tuesday:   { open: '08:00', close: '18:00', closed: false },
-  wednesday: { open: '08:00', close: '18:00', closed: false },
-  thursday:  { open: '08:00', close: '18:00', closed: false },
-  friday:    { open: '08:00', close: '18:00', closed: false },
-  saturday:  { open: '08:00', close: '16:00', closed: false },
-  sunday:    { open: '08:00', close: '16:00', closed: true  },
-}
-
-const DEFAULTS: SalonSettings = {
+const DEFAULTS = {
   salonName:    '',
   tagline:      '',
   phone:        '',
