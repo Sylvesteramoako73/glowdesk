@@ -77,11 +77,11 @@
   }
 
   .card {
-    @apply bg-white border border-gray-200 rounded-lg dark:bg-gray-900 dark:border-gray-700;
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800;
   }
 
   .stat-box {
-    @apply bg-white border border-gray-200 rounded-lg p-5 dark:bg-gray-900 dark:border-gray-700;
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-5 dark:bg-gray-900 dark:border-gray-800;
   }
 
   .badge {

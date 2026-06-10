@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Bell, Plus, Calendar, ExternalLink } from 'lucide-react'
+import { Bell, Plus, Calendar, ExternalLink, Search } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { LocationSwitcher } from '@/components/layout/location-switcher'
@@ -53,28 +53,38 @@ export function Topbar({ userName }: { userName: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 sm:px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 gap-4">
+      {/* Search */}
+      <div className="flex-1 max-w-xs hidden sm:flex items-center gap-2 h-9 px-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <Search className="h-4 w-4 text-gray-400 shrink-0" />
+        <input
+          type="text"
+          placeholder="Search..."
+          className="flex-1 bg-transparent text-sm text-gray-700 dark:text-gray-300 placeholder:text-gray-400 focus:outline-none"
+        />
+      </div>
+
       <div className="flex items-center gap-2 ml-auto">
         <LocationSwitcher />
         <PushNotificationButton />
+
         {/* Quick actions */}
-        <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-          <Link href="/pos" className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <Plus className="h-5 w-5 shrink-0" /> <span className="hidden sm:inline">New Sale</span>
-          </Link>
-          <div className="w-px h-5 bg-gray-200 dark:bg-gray-700" />
-          <Link href="/appointments" className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <Calendar className="h-5 w-5 shrink-0" /> <span className="hidden sm:inline">Book</span>
-          </Link>
-        </div>
+        <Link href="/appointments"
+          className="hidden sm:flex items-center gap-1.5 h-9 px-3 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">
+          <Plus className="h-4 w-4" /> Book
+        </Link>
+        <Link href="/pos"
+          className="hidden sm:flex items-center gap-1.5 h-9 px-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          <Calendar className="h-4 w-4" /> Sale
+        </Link>
 
         {/* Notifications */}
         <div className="relative">
           <button
             onClick={handleOpen}
-            className="relative h-9 w-9 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            className="relative h-9 w-9 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <Bell className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             {unread > 0 && (
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />
             )}
@@ -83,7 +93,7 @@ export function Topbar({ userName }: { userName: string }) {
           {notifOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-              <div className="absolute right-0 top-11 w-80 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg z-50 overflow-hidden">
+              <div className="absolute right-0 top-11 w-80 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl z-50 overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
                   <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</span>
                   {notifications.length > 0 && (
@@ -107,7 +117,7 @@ export function Topbar({ userName }: { userName: string }) {
                             <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 leading-relaxed">{n.body}</p>
                             <p className="text-xs text-gray-400 mt-1">{timeAgo(n.createdAt)}</p>
                           </div>
-                          {n.link && <ExternalLink className="h-5 w-5 text-gray-300 dark:text-gray-600 shrink-0 mt-0.5" />}
+                          {n.link && <ExternalLink className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0 mt-0.5" />}
                         </div>
                       </div>
                     ))}
@@ -119,7 +129,7 @@ export function Topbar({ userName }: { userName: string }) {
         </div>
 
         {/* Avatar */}
-        <div className="h-8 w-8 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-semibold flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full bg-teal-600 text-white text-xs font-semibold flex items-center justify-center shrink-0">
           {userName ? getInitials(userName) : '…'}
         </div>
       </div>
