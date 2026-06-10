@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Marketing domains — serve the _site landing pages, no auth needed
+// Marketing domains — rewrite to _site landing pages, no auth needed
 const MARKETING_HOSTS = new Set(['glowdeskapp.online', 'www.glowdeskapp.online'])
 
-// Public routes that never require a session (on app domain)
+// Public routes on the app domain that never require a session
 const PUBLIC = ['/login', '/signup', '/admin-login', '/api/auth', '/api/book', '/book', '/admin', '/api/admin']
 
 function isPublic(pathname: string) {
@@ -14,20 +14,25 @@ export function middleware(req: NextRequest) {
   const session    = req.cookies.get('session')?.value
   const { pathname, hostname } = req.nextUrl
 
-  // Pass through static assets
+  // Pass through static assets regardless of host
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) {
     return NextResponse.next()
   }
 
-  // Marketing domain — everything is public, rewrites already handled by next.config
+  // ── Marketing domain: rewrite into _site folder ──────────────────────────
   if (MARKETING_HOSTS.has(hostname)) {
-    return NextResponse.next()
+    // Already an internal _site path — pass through
+    if (pathname.startsWith('/_site')) return NextResponse.next()
+
+    const url = req.nextUrl.clone()
+    url.pathname = pathname === '/' ? '/_site' : `/_site${pathname}`
+    return NextResponse.rewrite(url)
   }
 
   // API routes — let through (they do their own auth)
   if (pathname.startsWith('/api')) return NextResponse.next()
 
-  // Internal _site paths — public (accessed via rewrite from marketing domain)
+  // Internal _site paths accessed directly — allow
   if (pathname.startsWith('/_site')) return NextResponse.next()
 
   // Tenant booking subdomains (e.g. salonname.glowdeskapp.online)
