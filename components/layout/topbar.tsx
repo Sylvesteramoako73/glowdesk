@@ -53,14 +53,14 @@ export function Topbar({ userName }: { userName: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 sm:px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 gap-4">
+    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 sm:px-6 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 gap-4">
       {/* Search */}
-      <div className="flex-1 max-w-xs hidden sm:flex items-center gap-2 h-9 px-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <Search className="h-4 w-4 text-gray-400 shrink-0" />
+      <div className="flex-1 max-w-xs hidden sm:flex items-center gap-2 h-9 px-4 bg-gray-100 dark:bg-white/5 rounded-full">
+        <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
         <input
           type="text"
           placeholder="Search..."
-          className="flex-1 bg-transparent text-sm text-gray-700 dark:text-gray-300 placeholder:text-gray-400 focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-gray-700 dark:text-gray-300 placeholder:text-gray-500 focus:outline-none"
         />
       </div>
 
@@ -70,11 +70,11 @@ export function Topbar({ userName }: { userName: string }) {
 
         {/* Quick actions */}
         <Link href="/appointments"
-          className="hidden sm:flex items-center gap-1.5 h-9 px-3 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">
+          className="hidden sm:flex items-center gap-1.5 h-9 px-3.5 text-sm font-medium text-white bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 rounded-full transition-all shadow-sm shadow-teal-500/20">
           <Plus className="h-4 w-4" /> Book
         </Link>
         <Link href="/pos"
-          className="hidden sm:flex items-center gap-1.5 h-9 px-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          className="hidden sm:flex items-center gap-1.5 h-9 px-3.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-full transition-colors">
           <Calendar className="h-4 w-4" /> Sale
         </Link>
 
@@ -82,7 +82,7 @@ export function Topbar({ userName }: { userName: string }) {
         <div className="relative">
           <button
             onClick={handleOpen}
-            className="relative h-9 w-9 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            className="relative h-9 w-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             <Bell className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             {unread > 0 && (
@@ -129,7 +129,7 @@ export function Topbar({ userName }: { userName: string }) {
         </div>
 
         {/* Avatar */}
-        <div className="h-8 w-8 rounded-full bg-teal-600 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/30 ring-2 ring-white/10">
           {userName ? getInitials(userName) : '…'}
         </div>
       </div>

@@ -16,33 +16,33 @@ const STAT_CONFIGS = [
     key: 'todayRevenue',
     label: "Today's Revenue",
     icon: Banknote,
-    iconBg: 'bg-teal-100 dark:bg-teal-900/40',
+    iconBg: 'bg-teal-500/10 dark:bg-teal-500/15',
     iconColor: 'text-teal-600 dark:text-teal-400',
-    border: 'border-l-teal-500',
+    accent: 'from-teal-500/5 to-transparent',
   },
   {
     key: 'todayBookings',
     label: "Today's Bookings",
     icon: CalendarDays,
-    iconBg: 'bg-blue-100 dark:bg-blue-900/40',
+    iconBg: 'bg-blue-500/10 dark:bg-blue-500/15',
     iconColor: 'text-blue-600 dark:text-blue-400',
-    border: 'border-l-blue-500',
+    accent: 'from-blue-500/5 to-transparent',
   },
   {
     key: 'monthlyRevenue',
     label: 'Monthly Revenue',
     icon: BarChart3,
-    iconBg: 'bg-violet-100 dark:bg-violet-900/40',
+    iconBg: 'bg-violet-500/10 dark:bg-violet-500/15',
     iconColor: 'text-violet-600 dark:text-violet-400',
-    border: 'border-l-violet-500',
+    accent: 'from-violet-500/5 to-transparent',
   },
   {
     key: 'avgTransaction',
     label: 'Avg. Transaction',
     icon: Users2,
-    iconBg: 'bg-amber-100 dark:bg-amber-900/40',
+    iconBg: 'bg-amber-500/10 dark:bg-amber-500/15',
     iconColor: 'text-amber-600 dark:text-amber-400',
-    border: 'border-l-amber-500',
+    accent: 'from-amber-500/5 to-transparent',
   },
 ]
 
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
           const Icon = cfg.icon
           const s    = statValues[i]
           return (
-            <div key={cfg.key} className={`bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 border-l-4 ${cfg.border} p-5`}>
+            <div key={cfg.key} className={`relative bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 overflow-hidden bg-gradient-to-br ${cfg.accent}`}>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{cfg.label}</p>
                 <div className={`h-8 w-8 rounded-lg ${cfg.iconBg} flex items-center justify-center`}>
