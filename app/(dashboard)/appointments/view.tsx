@@ -511,12 +511,21 @@ export function AppointmentsView({
                       return a.date === dateStr && h === hour
                     })
                     return (
-                      <div key={di} className={cn('min-h-[40px] px-1 py-1 border-l border-gray-100', dateStr === todayStr && 'bg-gray-50/50')}>
-                        {slotApts.map(apt => (
-                          <div key={apt.id} className="text-xs px-2 py-1 rounded mb-1 border-l-2 bg-gray-100 dark:bg-gray-700 border-gray-700 dark:border-gray-400 truncate">
-                            <span className="font-medium">{apt.client?.name?.split(' ')[0]}</span>
-                          </div>
-                        ))}
+                      <div key={di} className={cn('min-h-[40px] px-1 py-1 border-l border-gray-100', dateStr === todayStr && 'bg-teal-50/30')}>
+                        {slotApts.map(apt => {
+                          const color =
+                            apt.status === 'confirmed'   ? 'bg-blue-100 border-blue-500 text-blue-900'   :
+                            apt.status === 'in-progress' ? 'bg-green-100 border-green-500 text-green-900' :
+                            apt.status === 'completed'   ? 'bg-gray-100 border-gray-400 text-gray-500'   :
+                            apt.status === 'cancelled'   ? 'bg-red-50 border-red-400 text-red-700'       :
+                            'bg-amber-50 border-amber-400 text-amber-900'
+                          return (
+                            <div key={apt.id} className={cn('text-xs px-2 py-1 rounded-md mb-1 border-l-2 truncate cursor-pointer hover:brightness-95', color)}>
+                              <p className="font-semibold truncate">{apt.client?.name?.split(' ')[0]}</p>
+                              <p className="truncate opacity-75">{apt.services?.[0]?.service?.name ?? ''}</p>
+                            </div>
+                          )
+                        })}
                       </div>
                     )
                   })}

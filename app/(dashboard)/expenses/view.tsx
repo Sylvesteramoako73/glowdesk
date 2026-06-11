@@ -1,8 +1,8 @@
 'use client'
-import { useState, useTransition } from 'react'
-import { Plus, Trash2, Loader2, Download } from 'lucide-react'
-import { createExpense, deleteExpense, getExpenses } from '@/lib/actions/expenses'
-import { formatCurrency } from '@/lib/utils'
+import { useState, useTransition, useEffect } from 'react'
+import { Plus, Trash2, Loader2, Download, TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react'
+import { createExpense, deleteExpense, getExpenses, getPLReport } from '@/lib/actions/expenses'
+import { formatCurrency, cn } from '@/lib/utils'
 import type { Expense, ExpenseCategory } from '@/lib/actions/expenses'
 import type { Location } from '@/lib/actions/locations'
 
@@ -49,6 +49,7 @@ function exportCSV(expenses: Expense[]) {
 }
 
 export function ExpensesView({ expenses: initial, currentMonth, locations }: { expenses: Expense[]; currentMonth: string; locations: Location[] }) {
+  const [tab, setTab]           = useState<'expenses' | 'pl'>('expenses')
   const [expenses, setExpenses] = useState(initial)
   const [month, setMonth]       = useState(currentMonth)
   const [showForm, setShowForm] = useState(false)
@@ -92,16 +93,38 @@ export function ExpensesView({ expenses: initial, currentMonth, locations }: { e
           <h1 className="page-title">Expenses</h1>
           <p className="page-subtitle">Track salon costs and overheads</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => exportCSV(expenses)} className="btn-secondary">
-            <Download className="h-5 w-5" /> Export
-          </button>
-          <button onClick={() => setShowForm(true)} className="btn-primary">
-            <Plus className="h-5 w-5" /> Add Expense
-          </button>
-        </div>
+        {tab === 'expenses' && (
+          <div className="flex gap-2">
+            <button onClick={() => exportCSV(expenses)} className="btn-secondary">
+              <Download className="h-5 w-5" /> Export
+            </button>
+            <button onClick={() => setShowForm(true)} className="btn-primary">
+              <Plus className="h-5 w-5" /> Add Expense
+            </button>
+          </div>
+        )}
       </div>
 
+      {/* Tab switcher */}
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
+        <button
+          onClick={() => setTab('expenses')}
+          className={cn('flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors', tab === 'expenses' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300')}
+        >
+          <Download className="h-4 w-4" /> Expenses
+        </button>
+        <button
+          onClick={() => setTab('pl')}
+          className={cn('flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-colors', tab === 'pl' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300')}
+        >
+          <BarChart3 className="h-4 w-4" /> P&amp;L Report
+        </button>
+      </div>
+
+      {tab === 'pl' && <PLReport month={month} onMonthChange={handleMonthChange} />}
+
+      {tab === 'expenses' && (
+      <div className="space-y-5">
       {/* Month picker */}
       <div>
         <input
@@ -247,6 +270,108 @@ export function ExpensesView({ expenses: initial, currentMonth, locations }: { e
           <div className="text-center py-12 text-sm text-gray-500">No expenses recorded for this month.</div>
         )}
       </div>
+      </div>
+      )}
+    </div>
+  )
+}
+
+// ─── P&L Report component ──────────────────────────────────────────────────
+
+type PLData = NonNullable<Awaited<ReturnType<typeof getPLReport>>>
+
+function PLReport({ month, onMonthChange }: { month: string; onMonthChange: (m: string) => void }) {
+  const [data, setData]     = useState<PLData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  async function load(m: string) {
+    setLoading(true)
+    const d = await getPLReport(m)
+    setData(d)
+    setLoading(false)
+  }
+
+  useEffect(() => { load(month) }, [month])
+
+  if (loading) return <div className="flex items-center gap-2 text-sm text-gray-400 py-12 justify-center"><Loader2 className="h-5 w-5 animate-spin" /> Loading P&amp;L…</div>
+  if (!data)   return null
+
+  const { totalRevenue, totalExpenses, netProfit, margin, expByCategory, weeks } = data
+  const profitColor = netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+  const ProfitIcon  = netProfit > 0 ? TrendingUp : netProfit < 0 ? TrendingDown : Minus
+
+  return (
+    <div className="space-y-5">
+      {/* Month picker */}
+      <input type="month" value={month} onChange={e => onMonthChange(e.target.value)} className="form-input w-44" />
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: 'Revenue',   value: formatCurrency(totalRevenue),  color: 'text-teal-600 dark:text-teal-400', sub: `${data.aptCount} paid apts` },
+          { label: 'Expenses',  value: formatCurrency(totalExpenses), color: 'text-red-500 dark:text-red-400',   sub: `${data.expCount} entries` },
+          { label: 'Net Profit',value: formatCurrency(netProfit),     color: profitColor,                        sub: `${margin}% margin` },
+          { label: 'Margin',    value: `${margin}%`,                  color: profitColor,                        sub: netProfit >= 0 ? 'Profitable' : 'Loss' },
+        ].map(s => (
+          <div key={s.label} className="stat-box">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{s.label}</p>
+            <p className={cn('text-xl font-bold', s.color)}>{s.value}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{s.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* P&L statement */}
+      <div className="card p-5 space-y-3">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-gray-400" /> Profit &amp; Loss Statement
+        </h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800 font-medium text-teal-700 dark:text-teal-400">
+            <span>Total Revenue</span><span>{formatCurrency(totalRevenue)}</span>
+          </div>
+          {Object.entries(expByCategory).sort((a, b) => b[1] - a[1]).map(([cat, amt]) => (
+            <div key={cat} className="flex justify-between text-gray-600 dark:text-gray-400 pl-4">
+              <span>{CATEGORIES.find(c => c.value === cat)?.label ?? cat}</span>
+              <span className="text-red-500">({formatCurrency(amt)})</span>
+            </div>
+          ))}
+          <div className="flex justify-between py-2 border-t border-gray-200 dark:border-gray-700 font-medium text-red-600 dark:text-red-400">
+            <span>Total Expenses</span><span>({formatCurrency(totalExpenses)})</span>
+          </div>
+          <div className={cn('flex justify-between py-2 border-t-2 border-gray-300 dark:border-gray-600 font-bold text-base', profitColor)}>
+            <span className="flex items-center gap-1"><ProfitIcon className="h-4 w-4" /> Net Profit</span>
+            <span>{formatCurrency(netProfit)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Weekly chart (bar) */}
+      {weeks.length > 0 && (
+        <div className="card p-5">
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-4">Weekly Breakdown</h3>
+          <div className="flex items-end gap-2 h-32">
+            {weeks.map(w => {
+              const max    = Math.max(...weeks.map(x => Math.max(x.revenue, x.expenses)), 1)
+              const revH   = Math.round((w.revenue  / max) * 100)
+              const expH   = Math.round((w.expenses / max) * 100)
+              return (
+                <div key={w.label} className="flex-1 flex flex-col items-center gap-1">
+                  <div className="w-full flex items-end gap-0.5 h-28">
+                    <div className="flex-1 bg-teal-400 dark:bg-teal-500 rounded-t transition-all" style={{ height: `${revH}%` }} title={`Revenue: ${formatCurrency(w.revenue)}`} />
+                    <div className="flex-1 bg-red-300 dark:bg-red-500 rounded-t transition-all" style={{ height: `${expH}%` }} title={`Expenses: ${formatCurrency(w.expenses)}`} />
+                  </div>
+                  <span className="text-[10px] text-gray-400">{w.label}</span>
+                </div>
+              )
+            })}
+          </div>
+          <div className="flex gap-4 mt-2 text-xs text-gray-500">
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-teal-400" /> Revenue</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-red-300" /> Expenses</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

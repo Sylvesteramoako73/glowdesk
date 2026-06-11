@@ -3,6 +3,7 @@
 // so we rely on the sidebar hiding the link + the API returning 403 for non-owners
 import { useState, useEffect } from 'react'
 import { Check, Loader2, Eye, EyeOff, Shield, Crown, User, MessageSquare, CheckCircle, XCircle, CalendarDays, Link2, Unlink, Smartphone, Wifi, WifiOff } from 'lucide-react'
+import { GallerySection } from '@/components/settings/gallery-section'
 import {
   updateProfile, updatePassword,
   EmailAuthProvider, reauthenticateWithCredential,
@@ -652,6 +653,13 @@ export default function SettingsPage() {
         {myRole === 'owner' && (
           <Section title="Messaging (Email / SMS / WhatsApp)" description="Test your messaging channels. Email uses Gmail SMTP. SMS and WhatsApp require Twilio credentials.">
             <TwilioSection />
+          </Section>
+        )}
+
+        {/* Gallery */}
+        {myRole === 'owner' && (
+          <Section title="Photo Gallery" description="Showcase your work on your public booking page. Clients see these photos before they book.">
+            <GallerySection />
           </Section>
         )}
 

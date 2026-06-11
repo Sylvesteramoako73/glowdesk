@@ -19,6 +19,7 @@ const nav: NavItem[] = [
   { href: '/appointments', label: 'Appointments',  icon: Calendar,        roles: ['owner', 'manager', 'staff'] },
   { href: '/clients',      label: 'Clients',       icon: Users,           roles: ['owner', 'manager', 'staff'] },
   { href: '/pos',          label: 'Point of Sale', icon: CreditCard,      roles: ['owner', 'manager', 'staff'] },
+  { href: '/my-schedule',  label: 'My Schedule',   icon: Sun,             roles: ['owner', 'manager', 'staff'] },
   { href: '/services',     label: 'Services',      icon: Scissors,        roles: ['owner', 'manager'] },
   { href: '/staff',        label: 'Staff',         icon: UserCheck,       roles: ['owner', 'manager'] },
   { href: '/apprentices',  label: 'Apprentices',   icon: GraduationCap,   roles: ['owner', 'manager', 'staff'] },

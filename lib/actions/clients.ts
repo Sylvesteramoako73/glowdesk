@@ -87,24 +87,56 @@ export async function deleteClient(id: string) {
 }
 
 export async function addLoyaltyPoints(clientId: string, points: number) {
-  const doc  = await adminDb.collection('clients').doc(clientId).get()
-  const data = doc.data()
+  await adjustLoyaltyPoints(clientId, points, 'appointment')
+}
+
+export async function adjustLoyaltyPoints(
+  clientId: string,
+  delta: number,
+  reason: 'appointment' | 'manual_add' | 'redemption' | 'bonus',
+  note?: string
+) {
+  const tenantId = await getTenantId()
+  const docRef   = adminDb.collection('clients').doc(clientId)
+  const doc      = await docRef.get()
+  const data     = doc.data()
   if (!data) return
 
-  const newPoints = (data.loyaltyPoints ?? 0) + points
+  const prev      = data.loyaltyPoints ?? 0
+  const newPoints = Math.max(0, prev + delta)
   const newTier   = calculateTier(newPoints, data.totalSpent ?? 0)
-  const tierChanged = newTier !== data.loyaltyTier
+  const now       = new Date().toISOString()
 
-  await adminDb.collection('clients').doc(clientId).update({
-    loyaltyPoints: newPoints,
-    loyaltyTier:   newTier,
-    updatedAt:     new Date().toISOString(),
-  })
+  await Promise.all([
+    docRef.update({ loyaltyPoints: newPoints, loyaltyTier: newTier, updatedAt: now }),
+    adminDb.collection('clients').doc(clientId).collection('loyaltyLog').add({
+      tenantId,
+      delta,
+      balanceAfter: newPoints,
+      reason,
+      note: note ?? null,
+      createdAt: now,
+    }),
+  ])
 
-  if (tierChanged) {
+  if (newTier !== data.loyaltyTier) {
     const { runAutomationForEvent } = await import('@/lib/services/automation-engine')
     await runAutomationForEvent('loyalty_upgrade', { clientId, newTier })
   }
+
+  revalidatePath(`/clients/${clientId}`)
+}
+
+export async function getLoyaltyLog(clientId: string) {
+  const snap = await adminDb
+    .collection('clients').doc(clientId)
+    .collection('loyaltyLog')
+    .orderBy('createdAt', 'desc')
+    .limit(20)
+    .get()
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })) as Array<{
+    id: string; delta: number; balanceAfter: number; reason: string; note: string | null; createdAt: string
+  }>
 }
 
 function calculateTier(points: number, spent: number): string {

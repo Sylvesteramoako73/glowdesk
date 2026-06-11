@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase-admin'
 import { createNotification } from '@/lib/actions/notifications'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMessage } from '@/lib/services/messaging'
+import { verifyPayment } from '@/lib/services/paystack'
 import { z } from 'zod'
 
 const CORS = {
@@ -45,6 +46,17 @@ export async function POST(req: NextRequest) {
     }
     const { tenantId, serviceIds, staffId, locationId, date, startTime, name, phone, email, notes,
             depositPaid, depositAmount, paystackRef, bookingRef } = parsed.data
+
+    // Verify Paystack deposit when reference provided
+    if (paystackRef && depositPaid) {
+      const verification = await verifyPayment(paystackRef)
+      if (!verification.success || !verification.paid) {
+        return NextResponse.json(
+          { error: 'Deposit payment could not be verified. Please try again.' },
+          { status: 402, headers: CORS }
+        )
+      }
+    }
 
     // Idempotency — if Paystack succeeded but the network dropped, return the existing booking
     if (bookingRef) {

@@ -1,9 +1,24 @@
 'use client'
 import { useState } from 'react'
-import { Check, ArrowRight, ChevronLeft, Loader2, MapPin, Clock, Calendar } from 'lucide-react'
+import Script from 'next/script'
+import { Check, ArrowRight, ChevronLeft, Loader2, MapPin, Clock, Calendar, ShieldCheck } from 'lucide-react'
 import { formatCurrency, cn } from '@/lib/utils'
 import type { Service, Staff } from '@/lib/types'
 import type { Location } from '@/lib/actions/locations'
+import type { ServicePackage } from '@/lib/actions/packages'
+
+declare global {
+  interface Window {
+    PaystackPop: {
+      setup(options: {
+        key: string; email: string; amount: number; currency: string
+        ref: string; metadata?: Record<string, unknown>
+        onClose?: () => void
+        callback: (response: { reference: string }) => void
+      }): { openIframe(): void }
+    }
+  }
+}
 
 const TIME_SLOTS = [
   '08:00','08:30','09:00','09:30','10:00','10:30',
@@ -24,15 +39,19 @@ function fmt12(t: string) {
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
+const PAYSTACK_KEY = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? ''
+
 type Props = {
-  tenantId:  string
-  salonName: string
-  services:  Service[]
-  staff:     Staff[]
-  locations: Location[]
+  tenantId:   string
+  salonName:  string
+  services:   Service[]
+  staff:      Staff[]
+  locations:  Location[]
+  packages:   ServicePackage[]
+  depositPct: number
 }
 
-export function PublicBookingView({ tenantId, salonName, services, staff, locations }: Props) {
+export function PublicBookingView({ tenantId, salonName: _salonName, services, staff, locations, packages, depositPct }: Props) {
   const multiLocation = locations.length > 1
 
   const [step, setStep]           = useState(1)
@@ -48,6 +67,7 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
   const [loading, setLoading]     = useState(false)
   const [done, setDone]           = useState(false)
   const [error, setError]         = useState('')
+  const [depositPaid, setDepositPaid] = useState(false)
 
   const selectedLoc  = locations.find(l => l.id === locationId) ?? null
   const staffForLoc  = locationId && staff.some(s => (s as any).locationId)
@@ -81,10 +101,13 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
     return true
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  const depositAmount = depositPct > 0 ? Math.round(total * depositPct / 100) : 0
+  const canPayDeposit = depositAmount > 0 && !!PAYSTACK_KEY && !!name && !!phone
+
+  async function book(opts: { withDeposit: boolean; ref?: string }) {
     setLoading(true); setError('')
     try {
+      const bookingRef = crypto.randomUUID()
       const res = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,6 +122,10 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
           phone,
           email,
           notes,
+          depositPaid:   opts.withDeposit,
+          depositAmount: opts.withDeposit ? depositAmount : 0,
+          paystackRef:   opts.ref ?? null,
+          bookingRef,
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error ?? 'Booking failed')
@@ -109,9 +136,35 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
     setLoading(false)
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    await book({ withDeposit: false })
+  }
+
+  function handlePayDeposit() {
+    if (!canPayDeposit) return
+    const clientEmail = email || `${phone.replace(/\D/g, '')}@booking.glowdeskapp.online`
+    const ref = `glowdesk-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const handler = window.PaystackPop.setup({
+      key:      PAYSTACK_KEY,
+      email:    clientEmail,
+      amount:   depositAmount * 100,
+      currency: 'GHS',
+      ref,
+      metadata: { name, phone, tenantId },
+      onClose:  () => {},
+      callback: async (response) => {
+        setDepositPaid(true)
+        await book({ withDeposit: true, ref: response.reference })
+      },
+    })
+    handler.openIframe()
+  }
+
   function reset() {
     setStep(1); setSvcs([]); setStaffId(''); setDate(''); setTime('')
     setName(''); setPhone(''); setEmail(''); setNotes(''); setDone(false); setError('')
+    setDepositPaid(false)
     if (multiLocation) setLocId('')
   }
 
@@ -139,6 +192,7 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
 
   return (
     <div className="space-y-4">
+      {PAYSTACK_KEY && <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />}
 
       {/* ── Step indicator ────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-0">
@@ -220,6 +274,60 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
             <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
               <p className="text-xs text-gray-500">Select all the services you want — we'll bundle them into one appointment.</p>
             </div>
+
+            {/* Package deals */}
+            {packages.length > 0 && (
+              <div>
+                <div className="px-5 py-2.5 bg-amber-50 border-b border-amber-100">
+                  <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider">Special Packages</p>
+                </div>
+                {packages.map(pkg => {
+                  const allSelected = pkg.items.every(i => selectedSvcs.includes(i.serviceId))
+                  const savings     = pkg.originalTotal - pkg.price
+                  return (
+                    <div
+                      key={pkg.id}
+                      onClick={() => {
+                        const ids = pkg.items.map(i => i.serviceId)
+                        if (allSelected) {
+                          setSvcs(prev => prev.filter(id => !ids.includes(id)))
+                        } else {
+                          setSvcs(prev => [...new Set([...prev, ...ids])])
+                        }
+                      }}
+                      className={cn(
+                        'flex items-start gap-4 px-5 py-4 cursor-pointer border-b border-gray-50 hover:bg-amber-50/60 transition-colors',
+                        allSelected && 'bg-amber-50 hover:bg-amber-50'
+                      )}
+                    >
+                      <div className={cn(
+                        'h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors',
+                        allSelected ? 'border-amber-500 bg-amber-500' : 'border-gray-300'
+                      )}>
+                        {allSelected && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-semibold text-gray-900">{pkg.name}</span>
+                          {savings > 0 && (
+                            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                              Save {formatCurrency(savings)}
+                            </span>
+                          )}
+                        </div>
+                        {pkg.description && <p className="text-xs text-gray-500 mt-0.5">{pkg.description}</p>}
+                        <p className="text-xs text-gray-400 mt-1">{pkg.items.map(i => i.serviceName).join(' + ')}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-semibold text-gray-900">{formatCurrency(pkg.price)}</p>
+                        {savings > 0 && <p className="text-xs text-gray-400 line-through">{formatCurrency(pkg.originalTotal)}</p>}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
             {categories.map(cat => (
               <div key={cat}>
                 <div className="px-5 py-2.5 bg-gray-50 border-b border-gray-100">
@@ -439,6 +547,16 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
               />
             </div>
 
+            {depositAmount > 0 && PAYSTACK_KEY && (
+              <div className={`flex items-start gap-3 rounded-xl px-4 py-3 text-sm border ${depositPaid ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5" />
+                {depositPaid
+                  ? <span>Deposit of <strong>{formatCurrency(depositAmount)}</strong> paid ✓</span>
+                  : <span>A deposit of <strong>{formatCurrency(depositAmount)}</strong> ({depositPct}%) secures your booking. You can also book without paying now.</span>
+                }
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
                 {error}
@@ -467,6 +585,28 @@ export function PublicBookingView({ tenantId, salonName, services, staff, locati
           >
             Continue <ArrowRight className="h-4 w-4" />
           </button>
+        ) : canPayDeposit && !depositPaid ? (
+          <div className="flex-1 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={handlePayDeposit}
+              disabled={loading || !name || !phone}
+              className="w-full flex items-center justify-center gap-2 h-12 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors"
+            >
+              {loading
+                ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</>
+                : <><ShieldCheck className="h-4 w-4" /> Pay Deposit &amp; Book — {formatCurrency(depositAmount)}</>
+              }
+            </button>
+            <button
+              form="public-booking-form"
+              type="submit"
+              disabled={loading || !name || !phone}
+              className="w-full flex items-center justify-center gap-2 h-11 border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium rounded-xl text-sm transition-colors"
+            >
+              <Check className="h-4 w-4" /> Book Without Deposit
+            </button>
+          </div>
         ) : (
           <button
             form="public-booking-form"

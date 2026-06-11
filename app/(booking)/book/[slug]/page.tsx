@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { MapPin, Phone, MessageCircle, Scissors } from 'lucide-react'
 import { getPublicSalonData } from '@/lib/actions/public-booking'
 import { PublicBookingView } from './view'
-import Image from 'next/image'
+import { BookingGallery } from './gallery'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,7 +19,7 @@ export default async function PublicBookingPage({ params }: { params: { slug: st
   const data = await getPublicSalonData(params.slug)
   if (!data) notFound()
 
-  const { tenantId, salonName, settings, services, staff, locations } = data
+  const { tenantId, salonName, settings, services, staff, locations, packages } = data
   const hasWhatsApp = !!settings.whatsappNumber
   const hasPhone    = !!settings.phone
   const hasAddress  = !!settings.address
@@ -84,6 +84,11 @@ export default async function PublicBookingPage({ params }: { params: { slug: st
         </div>
       </div>
 
+      {/* ── Gallery ── */}
+      {(settings.galleryImages ?? []).length > 0 && (
+        <BookingGallery images={settings.galleryImages!} salonName={salonName} />
+      )}
+
       {/* ── Booking flow ── */}
       <div className="max-w-2xl mx-auto px-4 py-8">
         {services.length === 0 ? (
@@ -107,6 +112,8 @@ export default async function PublicBookingPage({ params }: { params: { slug: st
             services={services}
             staff={staff}
             locations={locations}
+            packages={packages}
+            depositPct={settings.depositPct ?? 0}
           />
         )}
       </div>

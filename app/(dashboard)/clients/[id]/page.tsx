@@ -9,6 +9,7 @@ import {
 import { getClientWithHistory } from '@/lib/actions/clients'
 import { updateClient } from '@/lib/actions/clients'
 import { formatCurrency } from '@/lib/utils'
+import { LoyaltyCard } from '@/components/clients/loyalty-card'
 
 const TIER_COLORS: Record<string, string> = {
   Platinum: 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900',
@@ -125,8 +126,8 @@ export default function ClientProfilePage({ params }: { params: { id: string } }
                   {client.loyaltyTier}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                  {client.loyaltyPoints} pts
+                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-400" />
+                  {client.loyaltyPoints.toLocaleString()} pts
                 </span>
                 {client.dateOfBirth && isBirthdayThisMonth(client.dateOfBirth) && (
                   <span className="text-xs text-pink-600 dark:text-pink-400 flex items-center gap-1 font-medium">
@@ -231,6 +232,9 @@ export default function ClientProfilePage({ params }: { params: { id: string } }
                 </div>
             }
           </div>
+
+          {/* Loyalty */}
+          <LoyaltyCard clientId={client.id} initialPoints={client.loyaltyPoints} initialTier={client.loyaltyTier} />
 
           {/* Insights */}
           <div className="card p-4 space-y-3">

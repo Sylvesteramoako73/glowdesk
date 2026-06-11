@@ -25,6 +25,7 @@ export type SalonSettings = {
   email:          string
   depositPct:     number
   workingHours:   WorkingHours
+  galleryImages?: string[]
 }
 
 export type TenantPlan = 'trial' | 'starter' | 'pro' | 'enterprise'
