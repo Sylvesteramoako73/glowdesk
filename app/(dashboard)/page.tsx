@@ -89,15 +89,15 @@ export default async function DashboardPage() {
           const Icon = cfg.icon
           const s    = statValues[i]
           return (
-            <div key={cfg.key} className={`relative bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 overflow-hidden bg-gradient-to-br ${cfg.accent}`}>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{cfg.label}</p>
-                <div className={`h-8 w-8 rounded-lg ${cfg.iconBg} flex items-center justify-center`}>
-                  <Icon className={`h-4 w-4 ${cfg.iconColor}`} />
+            <div key={cfg.key} className={`relative bg-white dark:bg-[#111115] rounded-2xl border border-gray-200/70 dark:border-white/[0.07] shadow-[0_1px_4px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)] dark:shadow-none p-5 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.09)] dark:hover:border-white/[0.12] hover:-translate-y-0.5 transition-all duration-200 cursor-default`}>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wide">{cfg.label}</p>
+                <div className={`h-9 w-9 rounded-xl ${cfg.iconBg} flex items-center justify-center`}>
+                  <Icon className={`h-4.5 w-4.5 ${cfg.iconColor}`} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{s.value}</p>
-              <p className={`text-xs flex items-center gap-1 ${s.up === true ? 'text-green-600' : s.up === false ? 'text-red-500' : 'text-gray-400'}`}>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">{s.value}</p>
+              <p className={`text-xs flex items-center gap-1 ${s.up === true ? 'text-green-600 dark:text-green-400' : s.up === false ? 'text-red-500 dark:text-red-400' : 'text-gray-400'}`}>
                 {s.up === true  && <TrendingUp  className="h-3 w-3" />}
                 {s.up === false && <TrendingDown className="h-3 w-3" />}
                 {s.sub}
@@ -109,8 +109,8 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Today's appointments */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="lg:col-span-2 bg-white dark:bg-[#111115] rounded-2xl border border-gray-200/70 dark:border-white/[0.07] shadow-[0_1px_4px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/[0.06]">
             <h2 className="font-semibold text-gray-900 dark:text-white text-sm">Today's Appointments</h2>
             <Link href="/appointments" className="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1 font-medium">
               View all <ChevronRight className="h-4 w-4" />
@@ -161,12 +161,12 @@ export default async function DashboardPage() {
         <div className="space-y-4">
           <OnboardingChecklist />
 
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 dark:border-gray-800">
+          <div className="bg-white dark:bg-[#111115] rounded-2xl border border-gray-200/70 dark:border-white/[0.07] shadow-[0_1px_4px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 dark:border-white/[0.06]">
               <h2 className="font-semibold text-gray-900 dark:text-white text-sm">Staff Status</h2>
               <Link href="/staff" className="text-xs text-teal-600 hover:text-teal-700 font-medium">View all</Link>
             </div>
-            <div className="divide-y divide-gray-50 dark:divide-gray-800">
+            <div className="divide-y divide-gray-100 dark:divide-white/[0.04]">
               {staffList.map(member => (
                 <div key={member.id} className="flex items-center justify-between px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -186,11 +186,11 @@ export default async function DashboardPage() {
 
           <BookingLinkCard />
 
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className="px-4 py-3.5 border-b border-gray-100 dark:border-gray-800">
+          <div className="bg-white dark:bg-[#111115] rounded-2xl border border-gray-200/70 dark:border-white/[0.07] shadow-[0_1px_4px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden">
+            <div className="px-4 py-3.5 border-b border-gray-100 dark:border-white/[0.06]">
               <h2 className="font-semibold text-gray-900 dark:text-white text-sm">Insights</h2>
             </div>
-            <div className="divide-y divide-gray-50 dark:divide-gray-800">
+            <div className="divide-y divide-gray-100 dark:divide-white/[0.04]">
               {stats.revenueGrowth > 0 && (
                 <div className="flex gap-3 px-4 py-3">
                   <div className="h-7 w-7 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
