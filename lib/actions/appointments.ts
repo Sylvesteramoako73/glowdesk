@@ -310,15 +310,16 @@ export async function getWeeklyRevenue(locationId?: string | null): Promise<{ da
   }
 
   const weekStart = days[0].date
+  // Single-field query to avoid needing a composite index; filter in memory
   const snap = await apts()
     .where('tenantId', '==', tenantId)
     .where('date', '>=', weekStart)
-    .where('paymentStatus', '==', 'paid')
     .get()
 
   const revenueByDate: Record<string, number> = {}
   snap.docs.forEach(doc => {
     const d = doc.data()
+    if (d.paymentStatus !== 'paid') return
     if (locationId && d.locationId !== locationId) return
     revenueByDate[d.date] = (revenueByDate[d.date] ?? 0) + d.totalPrice
   })
@@ -332,18 +333,22 @@ export async function getNextAppointment(locationId?: string | null): Promise<{
   const tenantId = await getTenantId()
   if (!tenantId) return null
 
-  const today = new Date().toISOString().split('T')[0]
+  const today   = new Date().toISOString().split('T')[0]
   const nowTime = new Date().toTimeString().slice(0, 5)
 
+  // Query by tenantId + date only to avoid composite index; filter status in memory
   const snap = await apts()
     .where('tenantId', '==', tenantId)
     .where('date', '==', today)
-    .where('status', 'in', ['confirmed', 'pending'])
     .get()
 
   const upcoming = snap.docs
     .map(d => d.data())
-    .filter(a => a.startTime > nowTime && (!locationId || a.locationId === locationId))
+    .filter(a =>
+      ['confirmed', 'pending'].includes(a.status) &&
+      a.startTime > nowTime &&
+      (!locationId || a.locationId === locationId)
+    )
     .sort((a, b) => a.startTime.localeCompare(b.startTime))
 
   if (!upcoming.length) return null
