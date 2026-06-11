@@ -4,6 +4,7 @@ import {
   Calendar, Users, BarChart2, CreditCard, Zap, Package,
   Check, ArrowRight, Star, Scissors, Globe, Smartphone,
 } from 'lucide-react'
+import { OnboardingOverlay } from './onboarding'
 
 const APP_URL = 'https://app.glowdeskapp.online'
 
@@ -438,6 +439,7 @@ function Footer() {
 export default function LandingPage() {
   return (
     <div className="font-sans bg-white text-gray-900">
+      <OnboardingOverlay />
       <Nav />
       <Hero />
       <SocialProof />
