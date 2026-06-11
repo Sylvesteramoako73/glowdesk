@@ -16,33 +16,41 @@ const STAT_CONFIGS = [
     key: 'todayRevenue',
     label: "Today's Revenue",
     icon: Banknote,
-    iconBg: 'bg-teal-500/10 dark:bg-teal-500/15',
-    iconColor: 'text-teal-600 dark:text-teal-400',
-    accent: 'from-teal-500/5 to-transparent',
+    cardGrad: 'from-teal-50 via-teal-50/40 to-white dark:from-teal-500/10 dark:via-transparent dark:to-[#111115]',
+    cardBorder: 'border-teal-100/80 dark:border-teal-500/20',
+    iconBg: 'bg-teal-500 shadow-md shadow-teal-200 dark:shadow-teal-900/40',
+    iconColor: 'text-white',
+    numColor: 'text-teal-900 dark:text-white',
   },
   {
     key: 'todayBookings',
     label: "Today's Bookings",
     icon: CalendarDays,
-    iconBg: 'bg-blue-500/10 dark:bg-blue-500/15',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    accent: 'from-blue-500/5 to-transparent',
+    cardGrad: 'from-blue-50 via-blue-50/40 to-white dark:from-blue-500/10 dark:via-transparent dark:to-[#111115]',
+    cardBorder: 'border-blue-100/80 dark:border-blue-500/20',
+    iconBg: 'bg-blue-500 shadow-md shadow-blue-200 dark:shadow-blue-900/40',
+    iconColor: 'text-white',
+    numColor: 'text-blue-900 dark:text-white',
   },
   {
     key: 'monthlyRevenue',
     label: 'Monthly Revenue',
     icon: BarChart3,
-    iconBg: 'bg-violet-500/10 dark:bg-violet-500/15',
-    iconColor: 'text-violet-600 dark:text-violet-400',
-    accent: 'from-violet-500/5 to-transparent',
+    cardGrad: 'from-violet-50 via-violet-50/40 to-white dark:from-violet-500/10 dark:via-transparent dark:to-[#111115]',
+    cardBorder: 'border-violet-100/80 dark:border-violet-500/20',
+    iconBg: 'bg-violet-500 shadow-md shadow-violet-200 dark:shadow-violet-900/40',
+    iconColor: 'text-white',
+    numColor: 'text-violet-900 dark:text-white',
   },
   {
     key: 'avgTransaction',
     label: 'Avg. Transaction',
     icon: Users2,
-    iconBg: 'bg-amber-500/10 dark:bg-amber-500/15',
-    iconColor: 'text-amber-600 dark:text-amber-400',
-    accent: 'from-amber-500/5 to-transparent',
+    cardGrad: 'from-amber-50 via-amber-50/40 to-white dark:from-amber-500/10 dark:via-transparent dark:to-[#111115]',
+    cardBorder: 'border-amber-100/80 dark:border-amber-500/20',
+    iconBg: 'bg-amber-500 shadow-md shadow-amber-200 dark:shadow-amber-900/40',
+    iconColor: 'text-white',
+    numColor: 'text-amber-900 dark:text-white',
   },
 ]
 
@@ -89,15 +97,15 @@ export default async function DashboardPage() {
           const Icon = cfg.icon
           const s    = statValues[i]
           return (
-            <div key={cfg.key} className={`relative bg-white dark:bg-[#111115] rounded-2xl border border-gray-200/70 dark:border-white/[0.07] shadow-[0_1px_4px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.04)] dark:shadow-none p-5 overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.09)] dark:hover:border-white/[0.12] hover:-translate-y-0.5 transition-all duration-200 cursor-default`}>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wide">{cfg.label}</p>
-                <div className={`h-9 w-9 rounded-xl ${cfg.iconBg} flex items-center justify-center`}>
-                  <Icon className={`h-4.5 w-4.5 ${cfg.iconColor}`} />
+            <div key={cfg.key} className={`relative bg-gradient-to-br ${cfg.cardGrad} rounded-2xl border ${cfg.cardBorder} shadow-[0_1px_4px_rgba(0,0,0,0.05),0_4px_16px_rgba(0,0,0,0.06)] dark:shadow-none p-5 overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-200 cursor-default`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className={`h-10 w-10 rounded-xl ${cfg.iconBg} flex items-center justify-center shrink-0`}>
+                  <Icon className={`h-5 w-5 ${cfg.iconColor}`} />
                 </div>
+                <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider text-right leading-tight">{cfg.label}</p>
               </div>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">{s.value}</p>
-              <p className={`text-xs flex items-center gap-1 ${s.up === true ? 'text-green-600 dark:text-green-400' : s.up === false ? 'text-red-500 dark:text-red-400' : 'text-gray-400'}`}>
+              <p className={`text-[2rem] font-bold mb-1.5 tracking-tight leading-none ${cfg.numColor}`}>{s.value}</p>
+              <p className={`text-xs flex items-center gap-1 ${s.up === true ? 'text-green-700 dark:text-green-400' : s.up === false ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-500'}`}>
                 {s.up === true  && <TrendingUp  className="h-3 w-3" />}
                 {s.up === false && <TrendingDown className="h-3 w-3" />}
                 {s.sub}
