@@ -1,29 +1,43 @@
-import { TrendingUp, TrendingDown, ChevronRight, Banknote, CalendarDays, BarChart3, Users2, Plus, ArrowRight } from 'lucide-react'
+import { TrendingUp, TrendingDown, ChevronRight, Banknote, CalendarDays, BarChart3, Users2, Plus, ArrowRight, ShoppingCart, UserPlus, Zap } from 'lucide-react'
 import Link from 'next/link'
-import { getDashboardStats, getTodayAppointments } from '@/lib/actions/appointments'
+import { getDashboardStats, getTodayAppointments, getWeeklyRevenue, getNextAppointment } from '@/lib/actions/appointments'
 import { getStaffWithStats } from '@/lib/actions/staff'
 import { getSessionUser, getEffectiveLocationId } from '@/lib/auth'
 import { formatCurrency, getGreeting } from '@/lib/utils'
 import dynamic from 'next/dynamic'
+import { RevenueChart }        from '@/components/dashboard/revenue-chart'
+import { NextAppointmentBanner } from '@/components/dashboard/next-appointment'
+
 const BookingLinkCard = dynamic(
   () => import('@/components/dashboard/booking-link-card').then(m => ({ default: m.BookingLinkCard })),
   { ssr: false }
 )
+const AnimatedStat = dynamic(
+  () => import('@/components/dashboard/animated-stat').then(m => ({ default: m.AnimatedStat })),
+  { ssr: false }
+)
 import { OnboardingChecklist } from '@/components/dashboard/onboarding-checklist'
 
-// Inline styles so Tailwind JIT can't purge the colors
 const CARD_STYLES = [
   { grad: { background: 'linear-gradient(160deg,#2dd4bf 0%,#0d9488 100%)' }, shadow: '0 8px 32px rgba(13,148,136,0.35)' },
-  { grad: { background: 'linear-gradient(160deg,#818cf8 0%,#4338ca 100%)' }, shadow: '0 8px 32px rgba(67,56,202,0.35)' },
+  { grad: { background: 'linear-gradient(160deg,#818cf8 0%,#4338ca 100%)' }, shadow: '0 8px 32px rgba(67,56,202,0.35)'  },
   { grad: { background: 'linear-gradient(160deg,#c084fc 0%,#7c3aed 100%)' }, shadow: '0 8px 32px rgba(124,58,237,0.35)' },
   { grad: { background: 'linear-gradient(160deg,#fbbf24 0%,#f97316 100%)' }, shadow: '0 8px 32px rgba(249,115,22,0.35)' },
 ]
 
 const STAT_META = [
-  { key: 'todayRevenue',   label: "Today's Revenue",   Icon: Banknote    },
-  { key: 'todayBookings',  label: "Today's Bookings",  Icon: CalendarDays },
-  { key: 'monthlyRevenue', label: 'Monthly Revenue',   Icon: BarChart3    },
-  { key: 'avgTransaction', label: 'Avg. Transaction',  Icon: Users2       },
+  { key: 'todayRevenue',   label: "Today's Revenue",   Icon: Banknote     },
+  { key: 'todayBookings',  label: "Today's Bookings",  Icon: CalendarDays  },
+  { key: 'monthlyRevenue', label: 'Monthly Revenue',   Icon: BarChart3     },
+  { key: 'avgTransaction', label: 'Avg. Transaction',  Icon: Users2        },
+]
+
+const QUICK_ACTIONS = [
+  { label: 'New Booking',  href: '/appointments/new', Icon: Plus,         bg: 'linear-gradient(135deg,#2dd4bf,#0d9488)', shadow: 'rgba(13,148,136,0.3)'  },
+  { label: 'Point of Sale', href: '/pos',             Icon: ShoppingCart, bg: 'linear-gradient(135deg,#818cf8,#4338ca)', shadow: 'rgba(67,56,202,0.3)'   },
+  { label: 'Add Client',   href: '/clients/new',      Icon: UserPlus,     bg: 'linear-gradient(135deg,#f472b6,#ec4899)', shadow: 'rgba(236,72,153,0.3)'  },
+  { label: 'Automations',  href: '/automations',      Icon: Zap,          bg: 'linear-gradient(135deg,#fbbf24,#f97316)', shadow: 'rgba(249,115,22,0.3)'  },
+  { label: 'Analytics',    href: '/analytics',        Icon: BarChart3,    bg: 'linear-gradient(135deg,#c084fc,#7c3aed)', shadow: 'rgba(124,58,237,0.3)'  },
 ]
 
 const STATUS_COLORS: Record<string, string> = {
@@ -52,10 +66,12 @@ export default async function DashboardPage() {
   const firstName        = user?.name.split(' ')[0] ?? 'there'
   const activeLocationId = await getEffectiveLocationId()
 
-  const [stats, todayApts, staffList] = await Promise.all([
+  const [stats, todayApts, staffList, weekDays, nextApt] = await Promise.all([
     getDashboardStats(activeLocationId),
     getTodayAppointments(activeLocationId),
     getStaffWithStats(activeLocationId),
+    getWeeklyRevenue(activeLocationId),
+    getNextAppointment(activeLocationId),
   ])
 
   const today = new Date().toLocaleDateString('en-GH', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -67,15 +83,8 @@ export default async function DashboardPage() {
     { value: formatCurrency(stats.avgTransaction), sub: `${stats.totalClients} active clients`, trend: undefined },
   ]
 
-  // Monthly goal ring
-  const TARGET  = 5000
-  const pct     = Math.min(100, Math.round((stats.monthlyRevenue / TARGET) * 100))
-  const r       = 48
-  const circ    = 2 * Math.PI * r
-  const dashOff = circ * (1 - pct / 100)
-
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-7">
 
       {/* ── Header ── */}
       <div className="flex items-end justify-between gap-4">
@@ -98,16 +107,31 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Quick actions strip ── */}
+      <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+        {QUICK_ACTIONS.map(({ label, href, Icon, bg, shadow }) => (
+          <Link
+            key={href}
+            href={href}
+            className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-semibold text-white whitespace-nowrap shrink-0 hover:-translate-y-0.5 transition-transform duration-150"
+            style={{ background: bg, boxShadow: `0 4px 14px ${shadow}` }}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </Link>
+        ))}
+      </div>
+
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {STAT_META.map(({ key, label, Icon }, i) => {
-          const s   = statValues[i]
-          const cs  = CARD_STYLES[i]
+          const s  = statValues[i]
+          const cs = CARD_STYLES[i]
           return (
             <div
               key={key}
-              className="rounded-2xl p-5 flex flex-col justify-between cursor-default transition-transform duration-200 hover:-translate-y-1"
-              style={{ ...cs.grad, minHeight: '172px', boxShadow: cs.shadow }}
+              className="rounded-2xl p-5 flex flex-col justify-between cursor-default hover:-translate-y-1 transition-transform duration-200"
+              style={{ ...cs.grad, minHeight: 172, boxShadow: cs.shadow }}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.2)' }}>
@@ -116,7 +140,9 @@ export default async function DashboardPage() {
                 <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest text-right leading-tight">{label}</p>
               </div>
               <div>
-                <p className="text-[1.9rem] font-black tracking-tight leading-none text-white mb-1.5">{s.value}</p>
+                <p className="text-[1.9rem] font-black tracking-tight leading-none text-white mb-1.5">
+                  <AnimatedStat value={s.value} />
+                </p>
                 <p className="text-xs text-white/70 flex items-center gap-1">
                   {s.trend === true  && <TrendingUp  className="h-3 w-3 shrink-0" />}
                   {s.trend === false && <TrendingDown className="h-3 w-3 shrink-0" />}
@@ -127,6 +153,15 @@ export default async function DashboardPage() {
           )
         })}
       </div>
+
+      {/* ── Next appointment banner ── */}
+      {nextApt && (
+        <NextAppointmentBanner
+          clientName={nextApt.clientName}
+          services={nextApt.services}
+          startTime={nextApt.startTime}
+        />
+      )}
 
       {/* ── Main grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -178,44 +213,19 @@ export default async function DashboardPage() {
         {/* Right column — 1/3 */}
         <div className="space-y-5">
 
-          {/* Revenue ring */}
+          {/* 7-day revenue chart */}
           <div className="bg-white dark:bg-[#111115] rounded-2xl border border-gray-100 dark:border-white/[0.06] p-6" style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
-            <h2 className="font-bold text-gray-900 dark:text-white">Monthly Goal</h2>
-            <p className="text-xs text-gray-400 mb-5">GH₵ {TARGET.toLocaleString()} target</p>
-            <div className="relative flex items-center justify-center" style={{ height: 120 }}>
-              <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
-                <circle cx="60" cy="60" r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
-                <circle
-                  cx="60" cy="60" r={r} fill="none"
-                  stroke="url(#tg)" strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={circ}
-                  strokeDashoffset={dashOff}
-                />
-                <defs>
-                  <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#2dd4bf" />
-                    <stop offset="100%" stopColor="#0d9488" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">{pct}%</p>
-                <p className="text-[10px] text-gray-400 font-medium mt-0.5">of goal</p>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <h2 className="font-bold text-gray-900 dark:text-white">Revenue</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Last 7 days</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-black text-gray-900 dark:text-white">{formatCurrency(weekDays.reduce((s, d) => s + d.revenue, 0))}</p>
+                <p className="text-[10px] text-gray-400">this week</p>
               </div>
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-3 bg-gray-50 dark:bg-gray-800/60 text-center">
-                <p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide font-semibold">Revenue</p>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(stats.monthlyRevenue)}</p>
-              </div>
-              <div className="rounded-xl p-3 bg-gray-50 dark:bg-gray-800/60 text-center">
-                <p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide font-semibold">Growth</p>
-                <p className={`text-sm font-bold ${stats.revenueGrowth >= 0 ? 'text-teal-600' : 'text-red-500'}`}>
-                  {stats.revenueGrowth >= 0 ? '+' : ''}{stats.revenueGrowth}%
-                </p>
-              </div>
-            </div>
+            <RevenueChart days={weekDays} />
           </div>
 
           {/* Staff */}

@@ -295,6 +295,67 @@ export async function getDashboardStats(locationId?: string | null) {
   }
 }
 
+export async function getWeeklyRevenue(locationId?: string | null): Promise<{ date: string; label: string; revenue: number }[]> {
+  const tenantId = await getTenantId()
+  if (!tenantId) return []
+
+  const days: { date: string; label: string }[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    days.push({
+      date:  d.toISOString().split('T')[0],
+      label: d.toLocaleDateString('en-GH', { weekday: 'short' }),
+    })
+  }
+
+  const weekStart = days[0].date
+  const snap = await apts()
+    .where('tenantId', '==', tenantId)
+    .where('date', '>=', weekStart)
+    .where('paymentStatus', '==', 'paid')
+    .get()
+
+  const revenueByDate: Record<string, number> = {}
+  snap.docs.forEach(doc => {
+    const d = doc.data()
+    if (locationId && d.locationId !== locationId) return
+    revenueByDate[d.date] = (revenueByDate[d.date] ?? 0) + d.totalPrice
+  })
+
+  return days.map(d => ({ ...d, revenue: revenueByDate[d.date] ?? 0 }))
+}
+
+export async function getNextAppointment(locationId?: string | null): Promise<{
+  clientName: string; services: string; startTime: string; date: string
+} | null> {
+  const tenantId = await getTenantId()
+  if (!tenantId) return null
+
+  const today = new Date().toISOString().split('T')[0]
+  const nowTime = new Date().toTimeString().slice(0, 5)
+
+  const snap = await apts()
+    .where('tenantId', '==', tenantId)
+    .where('date', '==', today)
+    .where('status', 'in', ['confirmed', 'pending'])
+    .get()
+
+  const upcoming = snap.docs
+    .map(d => d.data())
+    .filter(a => a.startTime > nowTime && (!locationId || a.locationId === locationId))
+    .sort((a, b) => a.startTime.localeCompare(b.startTime))
+
+  if (!upcoming.length) return null
+  const next = upcoming[0]
+  return {
+    clientName: next.clientName,
+    services:   (next.services ?? []).map((s: any) => s.name).join(', ') || '—',
+    startTime:  next.startTime,
+    date:       next.date,
+  }
+}
+
 export async function createPOSSale(data: {
   clientId: string; staffId: string; serviceIds: string[]
   paymentMethod: string; discountPct: number; redeemPoints?: number
