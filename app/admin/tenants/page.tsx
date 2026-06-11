@@ -8,6 +8,8 @@ type Tenant = {
   salonName:          string
   ownerEmail:         string | null
   ownerName:          string | null
+  phone:              string | null
+  whatsappNumber:     string | null
   plan:               string
   subscriptionStatus: string
   trialEndsAt:        string
@@ -75,9 +77,11 @@ export default function TenantsPage() {
     const matchStatus = statusFilter === 'all' || t.subscriptionStatus === statusFilter
     const q           = search.toLowerCase()
     const matchSearch = !q ||
-      (t.salonName ?? '').toLowerCase().includes(q) ||
-      (t.ownerEmail ?? '').toLowerCase().includes(q) ||
-      (t.ownerName  ?? '').toLowerCase().includes(q)
+      (t.salonName      ?? '').toLowerCase().includes(q) ||
+      (t.ownerEmail     ?? '').toLowerCase().includes(q) ||
+      (t.ownerName      ?? '').toLowerCase().includes(q) ||
+      (t.phone          ?? '').includes(q) ||
+      (t.whatsappNumber ?? '').includes(q)
     return matchStatus && matchSearch
   })
 
@@ -161,6 +165,12 @@ export default function TenantsPage() {
                       <td className="px-6 py-4">
                         <p className="text-gray-300 text-sm">{t.ownerName ?? '—'}</p>
                         <p className="text-xs text-gray-600 mt-0.5">{t.ownerEmail ?? '—'}</p>
+                        {t.phone && (
+                          <p className="text-xs text-gray-500 mt-0.5">📞 {t.phone}</p>
+                        )}
+                        {t.whatsappNumber && (
+                          <p className="text-xs text-gray-500 mt-0.5">💬 {t.whatsappNumber}</p>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span className="capitalize text-gray-400 text-sm">{t.plan}</span>

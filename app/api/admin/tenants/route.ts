@@ -22,9 +22,11 @@ export async function GET() {
         subscriptionStatus: data.subscriptionStatus,
         trialEndsAt:        data.trialEndsAt,
         createdAt:          data.createdAt,
-        ownerEmail:         ownerDoc.data()?.email ?? null,
-        ownerName:          ownerDoc.data()?.name  ?? null,
-        salonName:          settings.data()?.salonName ?? data.name,
+        ownerEmail:         ownerDoc.data()?.email          ?? null,
+        ownerName:          ownerDoc.data()?.name           ?? null,
+        salonName:          settings.data()?.salonName      ?? data.name,
+        phone:              settings.data()?.phone          ?? null,
+        whatsappNumber:     settings.data()?.whatsappNumber ?? null,
       }
     })
   )
