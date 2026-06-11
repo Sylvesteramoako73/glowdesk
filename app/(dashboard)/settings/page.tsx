@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { Check, Loader2, Eye, EyeOff, Shield, Crown, User, MessageSquare, CheckCircle, XCircle, CalendarDays, Link2, Unlink, Smartphone, Wifi, WifiOff } from 'lucide-react'
 import { GallerySection } from '@/components/settings/gallery-section'
+import { PayoutSection } from '@/components/settings/payout-section'
 import {
   updateProfile, updatePassword,
   EmailAuthProvider, reauthenticateWithCredential,
@@ -653,6 +654,13 @@ export default function SettingsPage() {
         {myRole === 'owner' && (
           <Section title="Messaging (Email / SMS / WhatsApp)" description="Test your messaging channels. Email uses Gmail SMTP. SMS and WhatsApp require Twilio credentials.">
             <TwilioSection />
+          </Section>
+        )}
+
+        {/* Payout */}
+        {myRole === 'owner' && (
+          <Section title="MoMo Payout Account" description="Connect your Mobile Money number so deposit payments from client bookings go directly to your phone.">
+            <PayoutSection />
           </Section>
         )}
 

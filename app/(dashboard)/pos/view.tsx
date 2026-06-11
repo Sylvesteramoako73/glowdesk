@@ -1,12 +1,15 @@
 'use client'
 import { useState } from 'react'
-import { Plus, Minus, X, Search, Check, Smartphone, Banknote, CreditCard, Building2, ArrowRight, ChevronLeft, Receipt, Loader2, Gift } from 'lucide-react'
+import { Plus, Minus, X, Search, Check, Smartphone, Banknote, CreditCard, Building2, ArrowRight, ChevronLeft, Receipt, Loader2, Gift, Package, Scissors } from 'lucide-react'
 import { createPOSSale } from '@/lib/actions/appointments'
 import { getGiftCardByCode, redeemGiftCard } from '@/lib/actions/gift-cards'
 import { formatCurrency, cn } from '@/lib/utils'
 import type { Client, Service, Staff } from '@/lib/types'
+import type { Product } from '@/lib/actions/inventory'
 
-interface CartItem { service: Service; quantity: number }
+interface SvcCartItem  { type: 'service'; service: Service; quantity: number }
+interface ProdCartItem { type: 'product'; product: Product; quantity: number }
+type CartItem = SvcCartItem | ProdCartItem
 
 const PAYMENT_METHODS = [
   { id: 'momo',     label: 'Mobile Money',  icon: Smartphone, desc: 'MTN, Vodafone, AirtelTigo' },
@@ -19,19 +22,23 @@ export function POSView({
   clients,
   services,
   staff,
+  products,
 }: {
   clients: Client[]
   services: Service[]
   staff: Staff[]
+  products: Product[]
 }) {
   const [step, setStep]                 = useState(1)
   const [cart, setCart]                 = useState<CartItem[]>([])
+  const [activeTab, setActiveTab]       = useState<'services' | 'products'>('services')
   const [clientId, setClientId]         = useState<string | null>(null)
   const [staffId, setStaffId]           = useState<string | null>(null)
   const [payMethod, setPayMethod]       = useState<string | null>(null)
   const [discount, setDiscount]         = useState(0)
   const [redeemPoints, setRedeemPoints] = useState(false)
   const [svcSearch, setSvcSearch]       = useState('')
+  const [prodSearch, setProdSearch]     = useState('')
   const [clientSearch, setClientSearch] = useState('')
   const [done, setDone]                 = useState(false)
   const [receipt, setReceipt]           = useState<{ invoiceNumber: string; total: number } | null>(null)
@@ -45,7 +52,7 @@ export function POSView({
   const selectedClient = clients.find(c => c.id === clientId)
   const pointsValue    = redeemPoints && selectedClient ? Math.floor(selectedClient.loyaltyPoints / 10) : 0
 
-  const subtotal  = cart.reduce((s, i) => s + i.service.price * i.quantity, 0)
+  const subtotal  = cart.reduce((s, i) => i.type === 'service' ? s + i.service.price * i.quantity : s + i.product.sellingPrice * i.quantity, 0)
   const discAmt   = Math.round(subtotal * discount / 100)
   const gcDeduct  = gcApplied?.deduct ?? 0
   const total     = Math.max(0, subtotal - discAmt - pointsValue - gcDeduct)
@@ -67,16 +74,25 @@ export function POSView({
 
   function removeGiftCard() { setGcApplied(null); setGcCode(''); setGcError('') }
 
-  const addItem = (svc: Service) =>
-    setCart(c => c.find(i => i.service.id === svc.id)
-      ? c.map(i => i.service.id === svc.id ? { ...i, quantity: i.quantity + 1 } : i)
-      : [...c, { service: svc, quantity: 1 }])
+  const addService = (svc: Service) =>
+    setCart(c => c.find(i => i.type === 'service' && i.service.id === svc.id)
+      ? c.map(i => i.type === 'service' && i.service.id === svc.id ? { ...i, quantity: i.quantity + 1 } : i)
+      : [...c, { type: 'service' as const, service: svc, quantity: 1 }])
 
-  const changeQty = (id: string, delta: number) =>
-    setCart(c => c.map(i => i.service.id === id ? { ...i, quantity: i.quantity + delta } : i).filter(i => i.quantity > 0))
+  const addProduct = (prod: Product) =>
+    setCart(c => c.find(i => i.type === 'product' && i.product.id === prod.id)
+      ? c.map(i => i.type === 'product' && i.product.id === prod.id ? { ...i, quantity: i.quantity + 1 } : i)
+      : [...c, { type: 'product' as const, product: prod, quantity: 1 }])
 
-  const selectedStaff  = staff.find(s => s.id === staffId)
-  const filteredSvcs   = services.filter(s => s.name.toLowerCase().includes(svcSearch.toLowerCase()))
+  const changeSvcQty = (id: string, delta: number) =>
+    setCart(c => c.map(i => i.type === 'service' && i.service.id === id ? { ...i, quantity: i.quantity + delta } : i).filter(i => i.quantity > 0))
+
+  const changeProdQty = (id: string, delta: number) =>
+    setCart(c => c.map(i => i.type === 'product' && i.product.id === id ? { ...i, quantity: i.quantity + delta } : i).filter(i => i.quantity > 0))
+
+  const selectedStaff   = staff.find(s => s.id === staffId)
+  const filteredSvcs    = services.filter(s => s.name.toLowerCase().includes(svcSearch.toLowerCase()))
+  const filteredProds   = products.filter(p => p.isActive && p.stockLevel > 0 && p.name.toLowerCase().includes(prodSearch.toLowerCase()))
   const filteredClients = clients.filter(c =>
     c.name.toLowerCase().includes(clientSearch.toLowerCase()) || c.phone.includes(clientSearch)
   )
@@ -85,9 +101,18 @@ export function POSView({
     if (!payMethod || !clientId || !staffId) return
     setSubmitting(true)
     try {
-      const serviceIds = cart.flatMap(i => Array(i.quantity).fill(i.service.id))
-      const result = await createPOSSale({ clientId, staffId, serviceIds, paymentMethod: payMethod, discountPct: discount, redeemPoints: redeemPoints ? (selectedClient?.loyaltyPoints ?? 0) : 0 })
-      // Redeem gift card after successful sale
+      const serviceIds = cart.filter(i => i.type === 'service').flatMap(i => Array((i as SvcCartItem).quantity).fill((i as SvcCartItem).service.id))
+      const cartProducts = cart.filter(i => i.type === 'product').map(i => {
+        const p = i as ProdCartItem
+        return { productId: p.product.id, name: p.product.name, price: p.product.sellingPrice, quantity: p.quantity }
+      })
+      const result = await createPOSSale({
+        clientId, staffId, serviceIds,
+        paymentMethod: payMethod, discountPct: discount,
+        redeemPoints: redeemPoints ? (selectedClient?.loyaltyPoints ?? 0) : 0,
+        giftCardId: gcApplied?.id ?? null, giftCardDeduct: gcDeduct,
+        products: cartProducts,
+      })
       if (gcApplied && gcDeduct > 0) {
         await redeemGiftCard(gcApplied.code, gcDeduct, result.appointmentId)
       }
@@ -124,10 +149,12 @@ export function POSView({
           )}
 
           <div className="border-t border-gray-100 pt-4 space-y-1.5 mb-6 text-sm text-left">
-            {cart.map(i => (
-              <div key={i.service.id} className="flex justify-between text-gray-700">
-                <span>{i.service.name} × {i.quantity}</span>
-                <span>{formatCurrency(i.service.price * i.quantity)}</span>
+            {cart.map((i, idx) => (
+              <div key={idx} className="flex justify-between text-gray-700">
+                {i.type === 'service'
+                  ? <><span>{i.service.name} × {i.quantity}</span><span>{formatCurrency(i.service.price * i.quantity)}</span></>
+                  : <><span>{i.product.name} × {i.quantity}</span><span>{formatCurrency(i.product.sellingPrice * i.quantity)}</span></>
+                }
               </div>
             ))}
             {discount > 0 && (
@@ -162,7 +189,7 @@ export function POSView({
 
       {/* Steps */}
       <div className="flex items-center gap-2 text-sm">
-        {['Select Services', 'Client & Staff', 'Payment'].map((label, i) => (
+        {['Select Items', 'Client & Staff', 'Payment'].map((label, i) => (
           <div key={i} className="flex items-center gap-2">
             <div className={cn(
               'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium',
@@ -183,44 +210,115 @@ export function POSView({
         <div className="col-span-2">
           {step === 1 && (
             <div className="card overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input type="text" placeholder="Search services..." value={svcSearch} onChange={e => setSvcSearch(e.target.value)} className="form-input pl-9 w-full" />
-                </div>
+              {/* Tab switcher */}
+              <div className="flex border-b border-gray-200 dark:border-white/[0.06]">
+                <button
+                  onClick={() => setActiveTab('services')}
+                  className={cn('flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer',
+                    activeTab === 'services' ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  )}
+                >
+                  <Scissors className="h-4 w-4" /> Services
+                </button>
+                <button
+                  onClick={() => setActiveTab('products')}
+                  className={cn('flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer',
+                    activeTab === 'products' ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  )}
+                >
+                  <Package className="h-4 w-4" /> Products
+                </button>
               </div>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Service</th><th>Category</th><th>Duration</th>
-                    <th className="text-right">Price</th><th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSvcs.map(svc => {
-                    const inCart = cart.find(i => i.service.id === svc.id)
-                    return (
-                      <tr key={svc.id} className={cn(inCart ? 'bg-gray-50' : '')}>
-                        <td className="font-medium">{svc.name}</td>
-                        <td className="text-gray-500">{svc.category}</td>
-                        <td className="text-gray-500">{svc.duration}m</td>
-                        <td className="text-right font-medium">{formatCurrency(svc.price)}</td>
-                        <td className="text-right">
-                          {inCart ? (
-                            <div className="flex items-center justify-end gap-2">
-                              <button onClick={() => changeQty(svc.id, -1)} className="btn-ghost h-6 w-6 p-0 justify-center"><Minus className="h-5 w-5" /></button>
-                              <span className="text-sm font-semibold w-5 text-center">{inCart.quantity}</span>
-                              <button onClick={() => changeQty(svc.id, 1)}  className="btn-ghost h-6 w-6 p-0 justify-center"><Plus  className="h-5 w-5" /></button>
-                            </div>
-                          ) : (
-                            <button onClick={() => addItem(svc)} className="btn-secondary h-7 text-xs px-3">Add</button>
-                          )}
-                        </td>
+
+              {activeTab === 'services' && (
+                <>
+                  <div className="p-4 border-b border-gray-200 dark:border-white/[0.06]">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input type="text" placeholder="Search services..." value={svcSearch} onChange={e => setSvcSearch(e.target.value)} className="form-input pl-9 w-full" />
+                    </div>
+                  </div>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Service</th><th>Category</th><th>Duration</th>
+                        <th className="text-right">Price</th><th className="text-right">Action</th>
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {filteredSvcs.map(svc => {
+                        const inCart = cart.find(i => i.type === 'service' && i.service.id === svc.id) as SvcCartItem | undefined
+                        return (
+                          <tr key={svc.id} className={cn(inCart ? 'bg-gray-50 dark:bg-white/[0.02]' : '')}>
+                            <td className="font-medium">{svc.name}</td>
+                            <td className="text-gray-500">{svc.category}</td>
+                            <td className="text-gray-500">{svc.duration}m</td>
+                            <td className="text-right font-medium">{formatCurrency(svc.price)}</td>
+                            <td className="text-right">
+                              {inCart ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  <button onClick={() => changeSvcQty(svc.id, -1)} className="btn-ghost h-6 w-6 p-0 justify-center"><Minus className="h-5 w-5" /></button>
+                                  <span className="text-sm font-semibold w-5 text-center">{inCart.quantity}</span>
+                                  <button onClick={() => changeSvcQty(svc.id, 1)}  className="btn-ghost h-6 w-6 p-0 justify-center"><Plus  className="h-5 w-5" /></button>
+                                </div>
+                              ) : (
+                                <button onClick={() => addService(svc)} className="btn-secondary h-7 text-xs px-3">Add</button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </>
+              )}
+
+              {activeTab === 'products' && (
+                <>
+                  <div className="p-4 border-b border-gray-200 dark:border-white/[0.06]">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input type="text" placeholder="Search products..." value={prodSearch} onChange={e => setProdSearch(e.target.value)} className="form-input pl-9 w-full" />
+                    </div>
+                  </div>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th><th>Category</th><th>Stock</th>
+                        <th className="text-right">Price</th><th className="text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProds.length === 0 && (
+                        <tr><td colSpan={5} className="text-center text-gray-400 py-6 text-sm">No products in stock</td></tr>
+                      )}
+                      {filteredProds.map(prod => {
+                        const inCart = cart.find(i => i.type === 'product' && i.product.id === prod.id) as ProdCartItem | undefined
+                        const maxQty = prod.stockLevel - (inCart?.quantity ?? 0)
+                        return (
+                          <tr key={prod.id} className={cn(inCart ? 'bg-gray-50 dark:bg-white/[0.02]' : '')}>
+                            <td className="font-medium">{prod.name}</td>
+                            <td className="text-gray-500">{prod.category}</td>
+                            <td className="text-gray-500">{prod.stockLevel}</td>
+                            <td className="text-right font-medium">{formatCurrency(prod.sellingPrice)}</td>
+                            <td className="text-right">
+                              {inCart ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  <button onClick={() => changeProdQty(prod.id, -1)} className="btn-ghost h-6 w-6 p-0 justify-center"><Minus className="h-5 w-5" /></button>
+                                  <span className="text-sm font-semibold w-5 text-center">{inCart.quantity}</span>
+                                  <button onClick={() => changeProdQty(prod.id, 1)} disabled={maxQty <= 0} className="btn-ghost h-6 w-6 p-0 justify-center disabled:opacity-30"><Plus className="h-5 w-5" /></button>
+                                </div>
+                              ) : (
+                                <button onClick={() => addProduct(prod)} className="btn-secondary h-7 text-xs px-3">Add</button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </>
+              )}
             </div>
           )}
 
@@ -343,16 +441,21 @@ export function POSView({
               <p className="text-sm text-gray-400 text-center py-6">No items added yet</p>
             ) : (
               <div className="space-y-2 mb-4">
-                {cart.map(i => (
-                  <div key={i.service.id} className="flex items-center gap-2 text-sm">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{i.service.name}</p>
-                      <p className="text-xs text-gray-500">{formatCurrency(i.service.price)} × {i.quantity}</p>
+                {cart.map((i, idx) => {
+                  const name  = i.type === 'service' ? i.service.name  : i.product.name
+                  const price = i.type === 'service' ? i.service.price : i.product.sellingPrice
+                  const removeItem = () => i.type === 'service' ? changeSvcQty(i.service.id, -i.quantity) : changeProdQty(i.product.id, -i.quantity)
+                  return (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{name}</p>
+                        <p className="text-xs text-gray-500">{formatCurrency(price)} × {i.quantity}</p>
+                      </div>
+                      <span className="font-medium text-gray-900 shrink-0">{formatCurrency(price * i.quantity)}</span>
+                      <button onClick={removeItem} className="text-gray-400 hover:text-red-500 cursor-pointer"><X className="h-5 w-5" /></button>
                     </div>
-                    <span className="font-medium text-gray-900 shrink-0">{formatCurrency(i.service.price * i.quantity)}</span>
-                    <button onClick={() => changeQty(i.service.id, -i.quantity)} className="text-gray-400 hover:text-red-500 cursor-pointer"><X className="h-5 w-5" /></button>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 

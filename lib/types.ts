@@ -16,16 +16,21 @@ export const DEFAULT_WORKING_HOURS: WorkingHours = {
   sunday:    { open: '08:00', close: '16:00', closed: true  },
 }
 
+export type MomoNetwork = 'mtn' | 'vodafone' | 'airteltigo'
+
 export type SalonSettings = {
-  salonName:      string
-  tagline:        string
-  phone:          string
-  whatsappNumber: string
-  address:        string
-  email:          string
-  depositPct:     number
-  workingHours:   WorkingHours
-  galleryImages?: string[]
+  salonName:               string
+  tagline:                 string
+  phone:                   string
+  whatsappNumber:          string
+  address:                 string
+  email:                   string
+  depositPct:              number
+  workingHours:            WorkingHours
+  galleryImages?:          string[]
+  payoutMomoNumber?:       string
+  payoutNetwork?:          MomoNetwork
+  paystackRecipientCode?:  string
 }
 
 export type TenantPlan = 'trial' | 'starter' | 'pro' | 'enterprise'

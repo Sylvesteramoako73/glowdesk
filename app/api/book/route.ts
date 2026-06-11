@@ -56,6 +56,21 @@ export async function POST(req: NextRequest) {
           { status: 402, headers: CORS }
         )
       }
+      // Transfer deposit to salon's MoMo account (fire-and-forget)
+      if (tenantId && depositAmount && depositAmount > 0) {
+        adminDb.collection('settings').doc(tenantId).get().then(async settingsDoc => {
+          const recipientCode = settingsDoc.data()?.paystackRecipientCode
+          if (recipientCode) {
+            const { initiateTransfer } = await import('@/lib/services/paystack')
+            initiateTransfer({
+              amountGHS:     depositAmount,
+              recipientCode,
+              reason:        `Deposit for ${name} booking`,
+              reference:     `dep_${paystackRef}`,
+            }).catch(e => console.error('[momo-transfer]', e))
+          }
+        }).catch(e => console.error('[momo-settings]', e))
+      }
     }
 
     // Idempotency — if Paystack succeeded but the network dropped, return the existing booking

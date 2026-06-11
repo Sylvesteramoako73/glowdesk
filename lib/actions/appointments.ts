@@ -298,10 +298,13 @@ export async function getDashboardStats(locationId?: string | null) {
 export async function createPOSSale(data: {
   clientId: string; staffId: string; serviceIds: string[]
   paymentMethod: string; discountPct: number; redeemPoints?: number
+  giftCardId?: string | null; giftCardDeduct?: number
+  products?: { productId: string; name: string; price: number; quantity: number }[]
 }) {
   const tenantId = await getTenantId()
   const parsed   = POSSaleSchema.parse(data)
   const { clientId, staffId, serviceIds, paymentMethod, discountPct, redeemPoints = 0 } = parsed
+  const products = data.products ?? []
 
   const [clientDoc, staffDoc] = await Promise.all([
     adminDb.collection('clients').doc(clientId).get(),
@@ -316,11 +319,14 @@ export async function createPOSSale(data: {
     duration:  s.data()?.duration ?? 0,
   }))
 
-  const subtotal       = services.reduce((s, sv) => s + sv.price, 0)
-  const discountAmt    = Math.round(subtotal * discountPct / 100)
-  const pointsDiscount = Math.floor(redeemPoints / 10)
-  const total          = Math.max(0, subtotal - discountAmt - pointsDiscount)
-  const duration       = services.reduce((s, sv) => s + sv.duration, 0)
+  const serviceSubtotal = services.reduce((s, sv) => s + sv.price, 0)
+  const productSubtotal = products.reduce((s, p) => s + p.price * p.quantity, 0)
+  const subtotal        = serviceSubtotal + productSubtotal
+  const discountAmt     = Math.round(subtotal * discountPct / 100)
+  const pointsDiscount  = Math.floor(redeemPoints / 10)
+  const gcDeduct        = data.giftCardDeduct ?? 0
+  const total           = Math.max(0, subtotal - discountAmt - pointsDiscount - gcDeduct)
+  const duration        = services.reduce((s, sv) => s + sv.duration, 0)
 
   const now       = new Date()
   const nowStr    = now.toISOString()
@@ -361,13 +367,27 @@ export async function createPOSSale(data: {
     paymentMethod,
     paidAt:        nowStr,
     createdAt:     nowStr,
-    items: services.map(s => ({
-      serviceId: s.serviceId, description: s.name,
-      quantity: 1, unitPrice: s.price, total: s.price,
-    })),
+    items: [
+      ...services.map(s => ({
+        serviceId: s.serviceId, description: s.name,
+        quantity: 1, unitPrice: s.price, total: s.price, type: 'service',
+      })),
+      ...products.map(p => ({
+        productId: p.productId, description: p.name,
+        quantity: p.quantity, unitPrice: p.price, total: p.price * p.quantity, type: 'product',
+      })),
+    ],
   }
 
   await Promise.all([apptRef.set(apptDoc), invoiceRef.set(invoiceDoc)])
+
+  // Deduct stock for each product sold
+  if (products.length > 0) {
+    const { adjustStock } = await import('@/lib/actions/inventory')
+    await Promise.all(
+      products.map(p => adjustStock(p.productId, -p.quantity, `Sold via POS — ${invoiceNumber}`))
+    )
+  }
 
   const clientData = clientDoc.data()!
   await adminDb.collection('clients').doc(clientId).update({

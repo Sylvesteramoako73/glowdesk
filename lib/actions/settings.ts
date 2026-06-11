@@ -4,7 +4,7 @@ import { adminDb } from '@/lib/firebase-admin'
 import { getTenantId } from '@/lib/auth'
 import { DEFAULT_WORKING_HOURS } from '@/lib/types'
 import type { SalonSettings } from '@/lib/types'
-export type { DayHours, WorkingHours, SalonSettings } from '@/lib/types'
+export type { DayHours, WorkingHours, SalonSettings, MomoNetwork } from '@/lib/types'
 
 const DEFAULTS = {
   salonName:      '',
@@ -29,4 +29,31 @@ export async function updateSalonSettings(data: Partial<SalonSettings>): Promise
   if (!tenantId) return
   await adminDb.collection('settings').doc(tenantId).set(data, { merge: true })
   revalidatePath('/settings')
+}
+
+export async function savePayoutSettings(data: {
+  momoNumber: string
+  network: string
+  ownerName: string
+}): Promise<{ success: boolean; error?: string }> {
+  const tenantId = await getTenantId()
+  if (!tenantId) return { success: false, error: 'Not authenticated' }
+
+  const { createTransferRecipient } = await import('@/lib/services/paystack')
+  const result = await createTransferRecipient({
+    name:        data.ownerName,
+    momoNumber:  data.momoNumber,
+    network:     data.network,
+  })
+
+  if (!result.success) return { success: false, error: result.error }
+
+  await adminDb.collection('settings').doc(tenantId).set({
+    payoutMomoNumber:      data.momoNumber,
+    payoutNetwork:         data.network,
+    paystackRecipientCode: result.recipientCode,
+  }, { merge: true })
+
+  revalidatePath('/settings')
+  return { success: true }
 }
