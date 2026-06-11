@@ -19,6 +19,7 @@ const nav: NavItem[] = [
   { href: '/appointments', label: 'Appointments',  icon: Calendar,        roles: ['owner', 'manager', 'staff'] },
   { href: '/clients',      label: 'Clients',       icon: Users,           roles: ['owner', 'manager', 'staff'] },
   { href: '/pos',          label: 'Point of Sale', icon: CreditCard,      roles: ['owner', 'manager', 'staff'] },
+  { href: '/products',     label: 'Products',      icon: Package,         roles: ['owner', 'manager', 'staff'] },
   { href: '/my-schedule',  label: 'My Schedule',   icon: Sun,             roles: ['owner', 'manager', 'staff'] },
   { href: '/services',     label: 'Services',      icon: Scissors,        roles: ['owner', 'manager'] },
   { href: '/staff',        label: 'Staff',         icon: UserCheck,       roles: ['owner', 'manager'] },
@@ -37,7 +38,7 @@ const nav: NavItem[] = [
 const NAV_GROUPS = [
   {
     label: null,
-    hrefs: ['/', '/appointments', '/clients', '/pos', '/my-schedule'],
+    hrefs: ['/', '/appointments', '/clients', '/pos', '/products', '/my-schedule'],
   },
   {
     label: 'Team',

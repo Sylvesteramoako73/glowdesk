@@ -117,35 +117,89 @@ async function sendWhatsApp(to: string, body: string): Promise<SendResult> {
   }
 }
 
-// ── Email via Nodemailer ──────────────────────────────────────────────────────
+// ── Email via Resend ──────────────────────────────────────────────────────────
 
-async function sendEmail(to: string, subject: string, body: string): Promise<SendResult> {
-  const host = process.env.SMTP_HOST
-  const user = process.env.SMTP_USER
-  const pass = process.env.SMTP_PASS
-  const from = process.env.SMTP_FROM ?? 'GlowDesk <no-reply@salon.com>'
+function bookingEmailHtml(opts: {
+  clientName: string
+  services: string
+  date: string
+  time: string
+  salonName: string
+  salonPhone?: string
+}): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0d9488,#14b8a6);padding:32px 40px;text-align:center;">
+            <p style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">✨ GlowDesk</p>
+            <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">Booking Confirmation</p>
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:36px 40px;">
+            <p style="margin:0 0 8px;font-size:16px;color:#374151;">Hi <strong>${opts.clientName}</strong>,</p>
+            <p style="margin:0 0 28px;font-size:14px;color:#6b7280;line-height:1.6;">Your booking request has been received. We'll confirm it shortly.</p>
 
-  if (!host || !user || !pass) {
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;padding:20px;border:1px solid #e5e7eb;">
+              <tr>
+                <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;">
+                  <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#9ca3af;font-weight:600;">Service</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111827;font-weight:600;">${opts.services}</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;">
+                  <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#9ca3af;font-weight:600;">Date</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111827;font-weight:600;">${opts.date}</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;">
+                  <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#9ca3af;font-weight:600;">Time</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111827;font-weight:600;">${opts.time}</p>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:24px 0 0;font-size:14px;color:#6b7280;line-height:1.6;">Questions? Contact <strong>${opts.salonName}</strong>${opts.salonPhone ? ` at <a href="tel:${opts.salonPhone}" style="color:#0d9488;">${opts.salonPhone}</a>` : ''}.</p>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="padding:20px 40px;background:#f9fafb;border-top:1px solid #f3f4f6;text-align:center;">
+            <p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <a href="https://glowdeskapp.online" style="color:#0d9488;text-decoration:none;">GlowDesk</a></p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+async function sendEmail(to: string, subject: string, body: string, htmlOpts?: Parameters<typeof bookingEmailHtml>[0]): Promise<SendResult> {
+  const apiKey = process.env.RESEND_API_KEY
+  const from   = process.env.RESEND_FROM ?? 'GlowDesk <bookings@glowdeskapp.online>'
+
+  if (!apiKey) {
     console.log(`[EMAIL MOCK → ${to}]\nSubject: ${subject}\n${body}\n`)
     return { success: true, mock: true }
   }
 
   try {
-    const nodemailer = await import('nodemailer')
-    const transporter = nodemailer.default.createTransport({
-      host,
-      port: parseInt(process.env.SMTP_PORT ?? '587'),
-      secure: false,
-      auth: { user, pass },
-    })
-    const info = await transporter.sendMail({
-      from,
-      to,
-      subject,
-      text: body,
-      html: body.replace(/\n/g, '<br>'),
-    })
-    return { success: true, messageId: info.messageId }
+    const { Resend } = await import('resend')
+    const resend = new Resend(apiKey)
+    const html   = htmlOpts ? bookingEmailHtml(htmlOpts) : `<pre style="font-family:sans-serif">${body.replace(/\n/g, '<br>')}</pre>`
+    const { data, error } = await resend.emails.send({ from, to, subject, html, text: body })
+    if (error) return { success: false, error: error.message }
+    return { success: true, messageId: data?.id }
   } catch (err: any) {
     return { success: false, error: err.message }
   }

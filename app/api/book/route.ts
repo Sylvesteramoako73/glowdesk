@@ -178,6 +178,8 @@ export async function POST(req: NextRequest) {
     const hour   = hFmt % 12 || 12
     const timeStr = `${hour}:${String(mFmt).padStart(2, '0')} ${ampm}`
     const svcNames = services.map(s => s.name).join(', ')
+
+    // SMS confirmation (fire-and-forget)
     sendMessage(
       'sms',
       phone,
@@ -187,6 +189,76 @@ export async function POST(req: NextRequest) {
         console.error(`[book] SMS to ${phone} failed:`, result.error)
       }
     })
+
+    // Email confirmation (fire-and-forget, only when email provided)
+    if (email) {
+      ;(async () => {
+        const apiKey = process.env.RESEND_API_KEY
+        const from   = process.env.RESEND_FROM ?? 'GlowDesk <bookings@glowdeskapp.online>'
+
+        // Fetch salon name + phone for the email
+        const settingsDoc = tenantId
+          ? await adminDb.collection('settings').doc(tenantId).get().catch(() => null)
+          : null
+        const salonName  = settingsDoc?.data()?.salonName ?? 'the salon'
+        const salonPhone = settingsDoc?.data()?.phone ?? ''
+
+        const subject = `Booking Confirmation — ${svcNames}`
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#0d9488,#14b8a6);padding:32px 40px;text-align:center;">
+            <p style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">GlowDesk</p>
+            <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">Booking Confirmation</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 40px;">
+            <p style="margin:0 0 8px;font-size:16px;color:#374151;">Hi <strong>${name}</strong>,</p>
+            <p style="margin:0 0 28px;font-size:14px;color:#6b7280;line-height:1.6;">Your booking request has been received. We'll confirm it shortly.</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;padding:20px;border:1px solid #e5e7eb;">
+              <tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;">
+                <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#9ca3af;font-weight:600;">Service</p>
+                <p style="margin:4px 0 0;font-size:15px;color:#111827;font-weight:600;">${svcNames}</p>
+              </td></tr>
+              <tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;">
+                <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#9ca3af;font-weight:600;">Date</p>
+                <p style="margin:4px 0 0;font-size:15px;color:#111827;font-weight:600;">${date}</p>
+              </td></tr>
+              <tr><td style="padding:8px 0;">
+                <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#9ca3af;font-weight:600;">Time</p>
+                <p style="margin:4px 0 0;font-size:15px;color:#111827;font-weight:600;">${timeStr}</p>
+              </td></tr>
+            </table>
+            <p style="margin:24px 0 0;font-size:14px;color:#6b7280;line-height:1.6;">Questions? Contact <strong>${salonName}</strong>${salonPhone ? ` at <a href="tel:${salonPhone}" style="color:#0d9488;">${salonPhone}</a>` : ''}.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 40px;background:#f9fafb;border-top:1px solid #f3f4f6;text-align:center;">
+            <p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <a href="https://glowdeskapp.online" style="color:#0d9488;text-decoration:none;">GlowDesk</a></p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+
+        if (!apiKey) {
+          console.log(`[EMAIL MOCK → ${email}] Subject: ${subject}`)
+          return
+        }
+        const { Resend } = await import('resend')
+        const resend = new Resend(apiKey)
+        resend.emails.send({ from, to: email, subject, html })
+          .catch(e => console.error('[book] email failed:', e))
+      })()
+    }
 
     return NextResponse.json({ id: ref.id }, { headers: CORS })
   } catch (err: any) {
