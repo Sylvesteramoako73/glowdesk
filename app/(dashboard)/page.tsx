@@ -33,9 +33,9 @@ const STAT_META = [
 ]
 
 const QUICK_ACTIONS = [
-  { label: 'New Booking',  href: '/appointments/new', Icon: Plus,         bg: 'linear-gradient(135deg,#2dd4bf,#0d9488)', shadow: 'rgba(13,148,136,0.3)'  },
+  { label: 'New Booking',  href: '/appointments',     Icon: Plus,         bg: 'linear-gradient(135deg,#2dd4bf,#0d9488)', shadow: 'rgba(13,148,136,0.3)'  },
   { label: 'Point of Sale', href: '/pos',             Icon: ShoppingCart, bg: 'linear-gradient(135deg,#818cf8,#4338ca)', shadow: 'rgba(67,56,202,0.3)'   },
-  { label: 'Add Client',   href: '/clients/new',      Icon: UserPlus,     bg: 'linear-gradient(135deg,#f472b6,#ec4899)', shadow: 'rgba(236,72,153,0.3)'  },
+  { label: 'Add Client',   href: '/clients',           Icon: UserPlus,     bg: 'linear-gradient(135deg,#f472b6,#ec4899)', shadow: 'rgba(236,72,153,0.3)'  },
   { label: 'Automations',  href: '/automations',      Icon: Zap,          bg: 'linear-gradient(135deg,#fbbf24,#f97316)', shadow: 'rgba(249,115,22,0.3)'  },
   { label: 'Analytics',    href: '/analytics',        Icon: BarChart3,    bg: 'linear-gradient(135deg,#c084fc,#7c3aed)', shadow: 'rgba(124,58,237,0.3)'  },
 ]
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="hidden sm:flex items-center gap-2 shrink-0">
-          <Link href="/appointments/new" className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm">
+          <Link href="/appointments" className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm">
             <Plus className="h-4 w-4" /> Appointment
           </Link>
           <Link href="/pos" className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all" style={{ background: 'linear-gradient(135deg,#14b8a6,#0d9488)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}>
