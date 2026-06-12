@@ -1,16 +1,17 @@
 import { getMarketingPosts } from '@/lib/actions/marketing'
 import { getSalonSettings } from '@/lib/actions/settings'
 import { getServices } from '@/lib/actions/services'
+import { getSocialConnections } from '@/lib/actions/social'
 import { MarketingView } from './view'
 
 export default async function MarketingPage() {
-  const [posts, settings, services] = await Promise.all([
+  const [posts, settings, services, socialConnections] = await Promise.all([
     getMarketingPosts().catch(() => []),
     getSalonSettings().catch(() => ({ salonName: '', address: '' } as any)),
     getServices().catch(() => []),
+    getSocialConnections().catch(() => ({})),
   ])
 
-  const hasApiKey    = !!process.env.ANTHROPIC_API_KEY
   const serviceCategories = [...new Set(services.map(s => s.category))].filter(Boolean)
 
   return (
@@ -19,7 +20,9 @@ export default async function MarketingPage() {
       salonName={settings.salonName || 'Your Salon'}
       address={settings.address || 'Ghana'}
       serviceCategories={serviceCategories}
-      hasApiKey={hasApiKey}
+      hasApiKey={!!process.env.ANTHROPIC_API_KEY}
+      hasFbAppId={!!process.env.FACEBOOK_APP_ID}
+      socialConnections={socialConnections}
     />
   )
 }
