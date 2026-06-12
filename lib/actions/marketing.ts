@@ -45,13 +45,33 @@ export async function generateContentIdeas(count = 6): Promise<PostIdea[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return getMockIdeas(salonName, Object.keys(byCategory))
 
+  const ANGLES = [
+    'client retention and loyalty rewards',
+    'seasonal promotions and Ghana holiday tie-ins',
+    'educational beauty tips and how-to content',
+    'before-and-after transformation posts',
+    'behind-the-scenes and team spotlight content',
+    'engagement questions and polls to boost comments',
+    'referral and word-of-mouth campaigns',
+    'weekend and walk-in special offers',
+    'testimonials and client appreciation posts',
+    'new service launches and product features',
+  ]
+  // Pick 2 random angles to force variety each call
+  const shuffled = [...ANGLES].sort(() => Math.random() - 0.5)
+  const focusAngles = shuffled.slice(0, 2).join(' and ')
+  const seed = Math.floor(Math.random() * 9000) + 1000
+
   const prompt = `You are a social media marketing expert for beauty salons in West Africa (Ghana).
 
 Salon: "${salonName}" located in ${address}
 Services:
 ${servicesList}
 
-Generate ${count} diverse, creative social media post ideas for this salon.
+Variation seed: ${seed}
+This batch should especially focus on: ${focusAngles}
+
+Generate ${count} diverse, creative social media post ideas for this salon. Every regeneration must produce COMPLETELY DIFFERENT ideas — different topics, different captions, different angles, different platforms. Never repeat the same concept twice.
 
 Return ONLY a valid JSON array (no markdown, no code fences, no extra text). Each object must have exactly these fields:
 - "platform": one of "instagram", "facebook", "whatsapp"
@@ -62,15 +82,16 @@ Return ONLY a valid JSON array (no markdown, no code fences, no extra text). Eac
 - "bestTime": posting time suggestion (e.g. "7pm–9pm weekdays")
 - "emoji": one representative emoji
 
-Mix content types: beauty tips, promotions, before/after prompts, client appreciation, seasonal Ghana events (Christmas, Easter, Valentine's, Independence Day March 6), engagement questions. Tailor everything to the actual services listed.`
+Vary platforms across the 6 posts. Tailor everything to the actual services listed.`
 
   try {
     const Anthropic = (await import('@anthropic-ai/sdk')).default
     const client    = new Anthropic({ apiKey })
     const msg = await client.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
-      messages:   [{ role: 'user', content: prompt }],
+      model:       'claude-haiku-4-5-20251001',
+      max_tokens:  2048,
+      temperature: 1.0,
+      messages:    [{ role: 'user', content: prompt }],
     })
     const text  = msg.content[0].type === 'text' ? msg.content[0].text : ''
     const clean = text.replace(/```(?:json)?\n?|\n?```/g, '').trim()
