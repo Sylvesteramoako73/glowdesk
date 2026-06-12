@@ -27,4 +27,3 @@ export default async function ApprenticesPage() {
   )
 }
 
-export const revalidate = 60

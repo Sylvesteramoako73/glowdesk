@@ -271,4 +271,3 @@ export default async function DashboardPage() {
   )
 }
 
-export const revalidate = 30

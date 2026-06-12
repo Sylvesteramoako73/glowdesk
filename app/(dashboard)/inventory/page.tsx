@@ -8,4 +8,3 @@ export default async function InventoryPage() {
   return <InventoryView products={products} />
 }
 
-export const revalidate = 60

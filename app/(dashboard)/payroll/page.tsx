@@ -6,4 +6,3 @@ export default async function PayrollPage() {
   return <PayrollView />
 }
 
-export const revalidate = 120

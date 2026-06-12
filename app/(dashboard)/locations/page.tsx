@@ -8,4 +8,3 @@ export default async function LocationsPage() {
   return <LocationsView locations={locations} />
 }
 
-export const revalidate = 60

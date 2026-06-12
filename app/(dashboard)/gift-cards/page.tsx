@@ -8,4 +8,3 @@ export default async function GiftCardsPage() {
   return <GiftCardsView cards={cards} />
 }
 
-export const revalidate = 30

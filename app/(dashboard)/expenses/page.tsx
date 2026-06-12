@@ -15,4 +15,3 @@ export default async function ExpensesPage() {
   return <ExpensesView expenses={expenses} currentMonth={month} locations={locations} />
 }
 
-export const revalidate = 60

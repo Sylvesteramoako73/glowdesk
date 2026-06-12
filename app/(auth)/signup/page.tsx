@@ -36,13 +36,21 @@ export default function SignupPage() {
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Signup failed'); setLoading(false); return }
 
-      // Sign in to get a session cookie
+      // Sign in, bake tenantId/role into custom claims, then create session cookie
       const credential = await signInWithEmailAndPassword(auth, email, password)
       const idToken    = await credential.user.getIdToken()
-      await fetch('/api/auth/session', {
+      // Must call claims first so tenantId is in the session cookie
+      await fetch('/api/auth/claims', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
+      })
+      // Get a fresh token with the new claims baked in
+      const freshToken = await credential.user.getIdToken(true)
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: freshToken }),
       })
       router.push('/')
     } catch (err: any) {

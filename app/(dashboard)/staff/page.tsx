@@ -14,4 +14,3 @@ export default async function StaffPage() {
   return <StaffView staff={staff as any} locations={locations} />
 }
 
-export const revalidate = 60

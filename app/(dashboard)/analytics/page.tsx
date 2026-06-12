@@ -13,4 +13,3 @@ export default async function AnalyticsPage() {
   return <AnalyticsView initialData={data} salonName={settings.salonName || 'Your Salon'} />
 }
 
-export const revalidate = 120

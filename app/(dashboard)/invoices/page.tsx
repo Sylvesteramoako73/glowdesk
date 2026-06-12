@@ -13,4 +13,3 @@ export default async function InvoicesPage() {
   return <InvoicesView invoices={invoices} stats={stats} salonName={settings.salonName || 'Your Salon'} />
 }
 
-export const revalidate = 60

@@ -8,4 +8,3 @@ export default async function AutomationsPage() {
   return <AutomationsView automations={automations as any} />
 }
 
-export const revalidate = 120

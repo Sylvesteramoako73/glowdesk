@@ -10,4 +10,3 @@ export default async function ProductsPage() {
   return <ProductsView products={products} salonName={settings.salonName || 'Our Salon'} />
 }
 
-export const revalidate = 60

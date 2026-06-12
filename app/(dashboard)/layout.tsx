@@ -1,3 +1,6 @@
+// Never cache authenticated pages — each tenant must see their own data only.
+export const dynamic = 'force-dynamic'
+
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getSessionUser, getEffectiveLocationId } from '@/lib/auth'

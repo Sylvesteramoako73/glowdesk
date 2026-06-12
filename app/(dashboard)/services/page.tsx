@@ -8,4 +8,3 @@ export default async function ServicesPage() {
   return <ServicesView services={services} />
 }
 
-export const revalidate = 120

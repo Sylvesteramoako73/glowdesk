@@ -6,4 +6,3 @@ export default async function ClientsPage() {
   return <ClientsView clients={clients} />
 }
 
-export const revalidate = 60

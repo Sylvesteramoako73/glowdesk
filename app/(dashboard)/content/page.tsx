@@ -27,4 +27,3 @@ export default async function MarketingPage() {
   )
 }
 
-export const revalidate = 60
