@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react'
 import {
   Plus, Search, Edit2, Trash2, Loader2, X, Check,
   AlertTriangle, Package, ShoppingCart, ArrowUp, ArrowDown,
+  Printer, ChevronDown, FileText, Tag,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -10,6 +11,106 @@ import {
   type Product,
 } from '@/lib/actions/inventory'
 import { formatCurrency, cn } from '@/lib/utils'
+
+/* ── Print helpers ─────────────────────────────────────────── */
+
+function printInWindow(html: string) {
+  const w = window.open('', '_blank', 'width=900,height=700')
+  if (!w) return
+  w.document.write(html)
+  w.document.close()
+  w.focus()
+  setTimeout(() => { w.print(); w.close() }, 400)
+}
+
+function buildPriceListHtml(products: Product[], salonName: string) {
+  const date = new Date().toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })
+  const rows = products
+    .filter(p => p.isActive)
+    .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))
+    .map(p => `
+      <tr>
+        <td>${p.name}${p.brand ? `<br><small>${p.brand}</small>` : ''}</td>
+        <td>${p.category}</td>
+        <td>${p.sku ?? '—'}</td>
+        <td>${p.stockLevel} ${p.unit}</td>
+        <td class="price">GHS ${p.sellingPrice.toFixed(2)}</td>
+      </tr>`)
+    .join('')
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>${salonName} – Price List</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #111; padding: 24px; }
+    .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #14b8a6; padding-bottom: 12px; }
+    .header h1 { font-size: 22px; font-weight: 800; color: #0f172a; }
+    .header .sub { color: #64748b; font-size: 11px; margin-top: 2px; }
+    .header .date { text-align: right; color: #64748b; font-size: 11px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    td small { color: #94a3b8; font-size: 10px; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .price { font-weight: 700; color: #0f766e; white-space: nowrap; }
+    .footer { margin-top: 24px; text-align: center; color: #94a3b8; font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+    @media print { body { padding: 16px; } }
+  </style></head><body>
+  <div class="header">
+    <div>
+      <h1>${salonName}</h1>
+      <div class="sub">Product Price List</div>
+    </div>
+    <div class="date">Printed: ${date}<br>${products.filter(p => p.isActive).length} products</div>
+  </div>
+  <table>
+    <thead><tr><th>Product</th><th>Category</th><th>SKU</th><th>Stock</th><th>Price</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">${salonName} · Prices valid as of ${date}</div>
+  </body></html>`
+}
+
+function buildPriceTagsHtml(products: Product[], salonName: string) {
+  const tags = products
+    .filter(p => p.isActive)
+    .map(p => `
+      <div class="tag">
+        <div class="salon">${salonName}</div>
+        <div class="name">${p.name}</div>
+        ${p.brand ? `<div class="brand">${p.brand}</div>` : ''}
+        <div class="cat">${p.category}</div>
+        <div class="price">GHS ${p.sellingPrice.toFixed(2)}</div>
+        ${p.sku ? `<div class="sku">SKU: ${p.sku}</div>` : ''}
+      </div>`)
+    .join('')
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>${salonName} – Price Tags</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #fff; padding: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tag {
+      border: 1.5px dashed #94a3b8; border-radius: 8px;
+      padding: 12px 10px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      page-break-inside: avoid; min-height: 110px; justify-content: center;
+    }
+    .salon { font-size: 8px; font-weight: 700; color: #14b8a6; letter-spacing: 0.08em; text-transform: uppercase; }
+    .name { font-size: 13px; font-weight: 800; color: #0f172a; margin-top: 2px; line-height: 1.2; }
+    .brand { font-size: 9px; color: #64748b; }
+    .cat { font-size: 8px; background: #f1f5f9; color: #475569; padding: 1px 6px; border-radius: 99px; margin-top: 2px; }
+    .price { font-size: 18px; font-weight: 900; color: #0f766e; margin-top: 4px; }
+    .sku { font-size: 8px; color: #94a3b8; font-family: monospace; margin-top: 2px; }
+    @media print {
+      body { padding: 8px; }
+      @page { margin: 10mm; }
+    }
+  </style></head><body>
+  <div class="grid">${tags}</div>
+  </body></html>`
+}
 
 const CATEGORIES = [
   'Hair Care', 'Skin Care', 'Nail Care', 'Styling',
@@ -40,7 +141,7 @@ function StockBadge({ stock, threshold }: { stock: number; threshold: number }) 
   )
 }
 
-export function ProductsView({ products: initial }: { products: Product[] }) {
+export function ProductsView({ products: initial, salonName = 'Our Salon' }: { products: Product[]; salonName?: string }) {
   const [products, setProducts] = useState(initial)
   const [search, setSearch]     = useState('')
   const [category, setCategory] = useState('All')
@@ -51,7 +152,8 @@ export function ProductsView({ products: initial }: { products: Product[] }) {
   const [adjId, setAdjId]       = useState<string | null>(null)
   const [adjDelta, setAdjDelta] = useState('')
   const [adjNote, setAdjNote]   = useState('')
-  const [, startTransition]     = useTransition()
+  const [printOpen, setPrintOpen] = useState(false)
+  const [, startTransition]       = useTransition()
 
   const active = products.filter(p => p.isActive)
   const filtered = active.filter(p => {
@@ -129,9 +231,50 @@ export function ProductsView({ products: initial }: { products: Product[] }) {
           <h1 className="page-title">Products</h1>
           <p className="page-subtitle">Manage your product catalog and sell at the POS</p>
         </div>
-        <button onClick={openNew} className="btn-primary shrink-0">
-          <Plus className="h-4 w-4" /> Add Product
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Print dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setPrintOpen(o => !o)}
+              className="btn-secondary gap-1.5"
+            >
+              <Printer className="h-4 w-4" />
+              Print
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+            {printOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setPrintOpen(false)} />
+                <div className="absolute right-0 mt-1.5 w-52 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-20 overflow-hidden">
+                  <button
+                    onClick={() => { setPrintOpen(false); printInWindow(buildPriceListHtml(products, salonName)) }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer text-left"
+                  >
+                    <FileText className="h-4 w-4 text-teal-500 shrink-0" />
+                    <div>
+                      <p className="font-medium">Price List</p>
+                      <p className="text-xs text-gray-400">A4 — all products with prices</p>
+                    </div>
+                  </button>
+                  <div className="border-t border-gray-100 dark:border-gray-800" />
+                  <button
+                    onClick={() => { setPrintOpen(false); printInWindow(buildPriceTagsHtml(products, salonName)) }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer text-left"
+                  >
+                    <Tag className="h-4 w-4 text-teal-500 shrink-0" />
+                    <div>
+                      <p className="font-medium">Price Tags</p>
+                      <p className="text-xs text-gray-400">3-up labels — cut & stick on products</p>
+                    </div>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+          <button onClick={openNew} className="btn-primary">
+            <Plus className="h-4 w-4" /> Add Product
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
