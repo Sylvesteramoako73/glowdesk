@@ -18,16 +18,183 @@ const PAYMENT_METHODS = [
   { id: 'transfer', label: 'Bank Transfer', icon: Building2,  desc: 'Direct bank deposit' },
 ]
 
+type SalonSettings = { name: string; address: string; phone: string; email: string }
+
+/* ── Receipt builder ─────────────────────────────────────── */
+type ReceiptData = {
+  invoiceNumber: string
+  items: { name: string; quantity: number; unitPrice: number }[]
+  subtotal: number
+  discountPct: number
+  discountAmt: number
+  pointsDeducted: number
+  gcDeducted: number
+  total: number
+  paymentLabel: string
+  clientName: string
+  staffName: string
+  salon: SalonSettings
+}
+
+function buildReceiptHtml(r: ReceiptData): string {
+  const now   = new Date()
+  const date  = now.toLocaleDateString('en-GH', { day: 'numeric', month: 'long', year: 'numeric' })
+  const time  = now.toLocaleTimeString('en-GH', { hour: '2-digit', minute: '2-digit', hour12: true })
+  const DASH  = '- '.repeat(28)
+  const LINE  = '─'.repeat(56)
+
+  const fmtAmt = (n: number) => n.toFixed(2)
+
+  const itemRows = r.items.map(item => {
+    const amt = (item.unitPrice * item.quantity).toFixed(2)
+    return `
+      <tr class="item-row">
+        <td class="item-name">${item.name}</td>
+        <td class="item-qty">${item.quantity}</td>
+        <td class="item-amt"><span class="ghs-label">GHS</span><br>${amt}</td>
+      </tr>`
+  }).join('')
+
+  const deductRows = [
+    r.discountAmt > 0   ? `<tr><td colspan="2">Discount (${r.discountPct}%)</td><td class="r">−GHS ${fmtAmt(r.discountAmt)}</td></tr>` : '',
+    r.pointsDeducted > 0 ? `<tr><td colspan="2">Loyalty Points</td><td class="r">−GHS ${fmtAmt(r.pointsDeducted)}</td></tr>` : '',
+    r.gcDeducted > 0     ? `<tr><td colspan="2">Gift Card</td><td class="r">−GHS ${fmtAmt(r.gcDeducted)}</td></tr>` : '',
+  ].join('')
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Receipt ${r.invoiceNumber}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      color: #000;
+      background: #fff;
+      width: 80mm;
+      margin: 0 auto;
+      padding: 8mm 6mm 12mm;
+    }
+    .center  { text-align: center; }
+    .bold    { font-weight: 700; }
+    .salon-name {
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .salon-detail { text-align: center; font-size: 12px; line-height: 1.6; margin-bottom: 2px; }
+    .hr-solid { border: none; border-top: 1.5px solid #000; margin: 8px 0; }
+    .hr-dash  { color: #888; font-size: 11px; letter-spacing: 1px; text-align: center; margin: 6px 0; white-space: nowrap; overflow: hidden; }
+    .meta-table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+    .meta-table td { padding: 2px 0; font-size: 13px; vertical-align: top; }
+    .meta-table td:last-child { text-align: right; }
+    .items-table { width: 100%; border-collapse: collapse; margin: 4px 0; }
+    .items-table thead th { font-size: 12px; font-weight: 900; text-transform: uppercase; padding: 3px 0; }
+    .items-table thead th:nth-child(2) { text-align: center; }
+    .items-table thead th:last-child { text-align: right; }
+    .item-name { vertical-align: bottom; padding: 4px 0 2px; font-size: 13px; width: 60%; }
+    .item-qty  { text-align: center; vertical-align: bottom; padding: 4px 0 2px; font-size: 13px; width: 10%; }
+    .item-amt  { text-align: right; vertical-align: top; padding: 2px 0; width: 30%; }
+    .ghs-label { font-size: 11px; display: block; line-height: 1.2; }
+    .totals-table { width: 100%; border-collapse: collapse; margin: 4px 0; }
+    .totals-table td { padding: 2px 0; font-size: 13px; }
+    .r { text-align: right; }
+    .total-row td { font-size: 16px; font-weight: 900; padding: 4px 0; }
+    .payment-line { font-size: 13px; margin: 6px 0; }
+    .thankyou { font-size: 14px; font-weight: 900; text-align: center; margin: 4px 0; }
+    .come-again { text-align: center; font-size: 12px; margin: 2px 0; }
+    .website { text-align: center; font-size: 11px; margin-top: 4px; color: #444; }
+    @media print {
+      body { width: 80mm; padding: 4mm 4mm 10mm; }
+      @page { size: 80mm auto; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="salon-name">${r.salon.name}</div>
+  ${r.salon.address ? `<div class="salon-detail">${r.salon.address}</div>` : ''}
+  ${r.salon.phone   ? `<div class="salon-detail">Tel: ${r.salon.phone}</div>` : ''}
+
+  <hr class="hr-solid">
+
+  <table class="meta-table">
+    <tr><td>Receipt No:</td><td>${r.invoiceNumber}</td></tr>
+    <tr><td>Date:</td><td>${date}</td></tr>
+    <tr><td>Time:</td><td>${time}</td></tr>
+    <tr><td>Cashier:</td><td>${r.staffName}</td></tr>
+    <tr><td>Client:</td><td>${r.clientName}</td></tr>
+  </table>
+
+  <div class="hr-dash">${DASH}</div>
+
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th style="text-align:left">SERVICE</th>
+        <th>QTY</th>
+        <th style="text-align:right">AMOUNT</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="3"><div class="hr-dash" style="margin:2px 0">${DASH}</div></td></tr>
+      ${itemRows}
+    </tbody>
+  </table>
+
+  <div class="hr-dash">${DASH}</div>
+
+  <table class="totals-table">
+    <tr><td>Subtotal</td><td class="r">GHS ${fmtAmt(r.subtotal)}</td></tr>
+    ${deductRows}
+  </table>
+
+  <hr class="hr-solid">
+  <table class="totals-table">
+    <tr class="total-row"><td>TOTAL</td><td class="r">GHS ${fmtAmt(r.total)}</td></tr>
+  </table>
+  <hr class="hr-solid">
+
+  <div class="payment-line">Payment: ${r.paymentLabel}</div>
+
+  <div class="hr-dash">${DASH}</div>
+
+  <div class="thankyou">Thank you for visiting ${r.salon.name}!</div>
+  <div class="come-again">Please come again</div>
+  ${r.salon.email ? `<div class="website">${r.salon.email}</div>` : ''}
+
+</body>
+</html>`
+}
+
+function printReceipt(data: ReceiptData) {
+  const w = window.open('', '_blank', 'width=400,height=650')
+  if (!w) return
+  w.document.write(buildReceiptHtml(data))
+  w.document.close()
+  w.focus()
+  setTimeout(() => { w.print(); w.close() }, 500)
+}
+
+/* ── Component ───────────────────────────────────────────── */
+
 export function POSView({
   clients,
   services,
   staff,
   products,
+  salonSettings,
 }: {
   clients: Client[]
   services: Service[]
   staff: Staff[]
   products: Product[]
+  salonSettings: SalonSettings
 }) {
   const [step, setStep]                 = useState(1)
   const [cart, setCart]                 = useState<CartItem[]>([])
@@ -41,7 +208,7 @@ export function POSView({
   const [prodSearch, setProdSearch]     = useState('')
   const [clientSearch, setClientSearch] = useState('')
   const [done, setDone]                 = useState(false)
-  const [receipt, setReceipt]           = useState<{ invoiceNumber: string; total: number } | null>(null)
+  const [receipt, setReceipt]           = useState<ReceiptData | null>(null)
   const [submitting, setSubmitting]     = useState(false)
   // Gift card
   const [gcCode, setGcCode]             = useState('')
@@ -116,7 +283,22 @@ export function POSView({
       if (gcApplied && gcDeduct > 0) {
         await redeemGiftCard(gcApplied.code, gcDeduct, result.appointmentId)
       }
-      setReceipt({ invoiceNumber: result.invoiceNumber, total: result.total })
+      setReceipt({
+        invoiceNumber:   result.invoiceNumber,
+        items: cart.map(i => i.type === 'service'
+          ? { name: i.service.name,  quantity: i.quantity, unitPrice: i.service.price }
+          : { name: i.product.name,  quantity: i.quantity, unitPrice: i.product.sellingPrice }),
+        subtotal,
+        discountPct:     discount,
+        discountAmt:     discAmt,
+        pointsDeducted:  pointsValue,
+        gcDeducted:      gcDeduct,
+        total:           result.total,
+        paymentLabel:    PAYMENT_METHODS.find(p => p.id === payMethod)?.label ?? payMethod ?? '',
+        clientName:      selectedClient?.name ?? 'Walk-in',
+        staffName:       selectedStaff?.name  ?? '',
+        salon:           salonSettings,
+      })
       setDone(true)
     } finally {
       setSubmitting(false)
@@ -130,49 +312,59 @@ export function POSView({
     removeGiftCard()
   }
 
-  if (done) {
+  if (done && receipt) {
     return (
       <div className="max-w-md mx-auto">
         <div className="card p-8 text-center">
           <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <Check className="h-8 w-8 text-green-600" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">Payment Complete</h2>
-          <p className="text-gray-500 text-sm mb-1">{formatCurrency(total)} received via {PAYMENT_METHODS.find(p => p.id === payMethod)?.label}</p>
-          {receipt && <p className="text-xs text-gray-400 mb-6">{receipt.invoiceNumber}</p>}
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Payment Complete</h2>
+          <p className="text-gray-500 text-sm mb-1">
+            {formatCurrency(receipt.total)} received via {receipt.paymentLabel}
+          </p>
+          <p className="text-xs text-gray-400 mb-6">{receipt.invoiceNumber}</p>
 
           {selectedClient && (
-            <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 mb-6 text-left">
-              <p className="font-medium text-gray-900">{selectedClient.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">+{Math.round(total / 10)} loyalty points earned</p>
+            <div className="text-sm text-gray-600 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-6 text-left">
+              <p className="font-medium text-gray-900 dark:text-white">{selectedClient.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">+{Math.round(receipt.total / 10)} loyalty points earned</p>
             </div>
           )}
 
-          <div className="border-t border-gray-100 pt-4 space-y-1.5 mb-6 text-sm text-left">
-            {cart.map((i, idx) => (
-              <div key={idx} className="flex justify-between text-gray-700">
-                {i.type === 'service'
-                  ? <><span>{i.service.name} × {i.quantity}</span><span>{formatCurrency(i.service.price * i.quantity)}</span></>
-                  : <><span>{i.product.name} × {i.quantity}</span><span>{formatCurrency(i.product.sellingPrice * i.quantity)}</span></>
-                }
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-1.5 mb-6 text-sm text-left">
+            {receipt.items.map((item, idx) => (
+              <div key={idx} className="flex justify-between text-gray-700 dark:text-gray-300">
+                <span>{item.name} × {item.quantity}</span>
+                <span>{formatCurrency(item.unitPrice * item.quantity)}</span>
               </div>
             ))}
-            {discount > 0 && (
+            {receipt.discountAmt > 0 && (
               <div className="flex justify-between text-green-600">
-                <span>Discount {discount}%</span>
-                <span>−{formatCurrency(discAmt)}</span>
+                <span>Discount {receipt.discountPct}%</span>
+                <span>−{formatCurrency(receipt.discountAmt)}</span>
               </div>
             )}
-            <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-100 pt-1.5 mt-1">
+            {receipt.pointsDeducted > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Loyalty Points</span><span>−{formatCurrency(receipt.pointsDeducted)}</span>
+              </div>
+            )}
+            {receipt.gcDeducted > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Gift Card</span><span>−{formatCurrency(receipt.gcDeducted)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-semibold text-gray-900 dark:text-white border-t border-gray-100 dark:border-gray-700 pt-1.5 mt-1">
               <span>Total</span>
-              <span>{formatCurrency(total)}</span>
+              <span>{formatCurrency(receipt.total)}</span>
             </div>
           </div>
 
           <div className="flex gap-3">
             <button onClick={resetSale} className="btn-secondary flex-1">New Sale</button>
-            <button onClick={() => window.print()} className="btn-primary flex-1">
-              <Receipt className="h-5 w-5" /> Print Receipt
+            <button onClick={() => printReceipt(receipt)} className="btn-primary flex-1">
+              <Receipt className="h-4 w-4" /> Print Receipt
             </button>
           </div>
         </div>
