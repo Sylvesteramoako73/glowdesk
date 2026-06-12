@@ -1,5 +1,5 @@
 'use server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { adminDb } from '@/lib/firebase-admin'
 import { getTenantId } from '@/lib/auth'
 import { getSalonSettings } from './settings'
@@ -24,7 +24,9 @@ export type MarketingPost = PostIdea & {
   createdAt: string
 }
 
-export async function generateContentIdeas(count = 6): Promise<PostIdea[]> {
+export async function generateContentIdeas(count = 6, clientSeed?: number): Promise<PostIdea[]> {
+  noStore()
+
   const [settings, services] = await Promise.all([
     getSalonSettings(),
     getServices(),
@@ -57,10 +59,10 @@ export async function generateContentIdeas(count = 6): Promise<PostIdea[]> {
     'testimonials and client appreciation posts',
     'new service launches and product features',
   ]
-  // Pick 2 random angles to force variety each call
   const shuffled = [...ANGLES].sort(() => Math.random() - 0.5)
   const focusAngles = shuffled.slice(0, 2).join(' and ')
-  const seed = Math.floor(Math.random() * 9000) + 1000
+  // Prefer client-provided seed (generated fresh on each button click) over server random
+  const seed = clientSeed ?? (Math.floor(Math.random() * 9000) + 1000)
 
   const prompt = `You are a social media marketing expert for beauty salons in West Africa (Ghana).
 
@@ -68,21 +70,21 @@ Salon: "${salonName}" located in ${address}
 Services:
 ${servicesList}
 
-Variation seed: ${seed}
-This batch should especially focus on: ${focusAngles}
+Request ID: ${seed}-${Date.now()}
+This batch must focus on: ${focusAngles}
 
-Generate ${count} diverse, creative social media post ideas for this salon. Every regeneration must produce COMPLETELY DIFFERENT ideas — different topics, different captions, different angles, different platforms. Never repeat the same concept twice.
+Generate ${count} COMPLETELY UNIQUE social media post ideas. Each call with a different Request ID must return entirely different post concepts — different services featured, different angles, different emotional hooks, different calls-to-action.
 
-Return ONLY a valid JSON array (no markdown, no code fences, no extra text). Each object must have exactly these fields:
+Return ONLY a valid JSON array (no markdown, no code fences). Each object:
 - "platform": one of "instagram", "facebook", "whatsapp"
-- "category": service focus (e.g. "hair", "nails", "skincare", "spa", "promotion", "engagement", "tips")
-- "title": 4-6 word title
-- "caption": 2-4 warm and professional sentences with 2-3 emojis. NO hashtags in the caption.
-- "hashtags": array of 6-10 hashtags. Include Ghana-specific ones like #GhanaBeauty #AccraSalon #GhanaHair
-- "bestTime": posting time suggestion (e.g. "7pm–9pm weekdays")
-- "emoji": one representative emoji
+- "category": e.g. "hair", "nails", "skincare", "spa", "promotion", "engagement", "tips"
+- "title": 4-6 word title (must differ from any typical/common beauty post titles)
+- "caption": 2-4 warm sentences with 2-3 emojis. NO hashtags in caption.
+- "hashtags": 6-10 hashtags including Ghana-specific (#GhanaBeauty, #AccraSalon, #GhanaHair etc.)
+- "bestTime": e.g. "7pm–9pm weekdays"
+- "emoji": one emoji
 
-Vary platforms across the 6 posts. Tailor everything to the actual services listed.`
+Spread platforms across posts. Be creative — surprise me with unusual angles.`
 
   try {
     const Anthropic = (await import('@anthropic-ai/sdk')).default
@@ -90,7 +92,7 @@ Vary platforms across the 6 posts. Tailor everything to the actual services list
     const msg = await client.messages.create({
       model:       'claude-haiku-4-5-20251001',
       max_tokens:  2048,
-      temperature: 1.0,
+      temperature: 1,
       messages:    [{ role: 'user', content: prompt }],
     })
     const text  = msg.content[0].type === 'text' ? msg.content[0].text : ''

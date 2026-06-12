@@ -641,7 +641,7 @@ export function MarketingView({
     setLoading(true)
     setIdeas([])
     try {
-      const result = await generateContentIdeas(6)
+      const result = await generateContentIdeas(6, Date.now())
       setIdeas(result)
     } finally {
       setLoading(false)
