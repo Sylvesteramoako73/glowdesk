@@ -310,15 +310,16 @@ export async function getWeeklyRevenue(locationId?: string | null): Promise<{ da
   }
 
   const weekStart = days[0].date
-  // Single-field query to avoid needing a composite index; filter in memory
+  // Query by tenantId only — range on a second field needs a composite index,
+  // so we filter date and paymentStatus in memory to avoid that requirement.
   const snap = await apts()
     .where('tenantId', '==', tenantId)
-    .where('date', '>=', weekStart)
     .get()
 
   const revenueByDate: Record<string, number> = {}
   snap.docs.forEach(doc => {
     const d = doc.data()
+    if (d.date < weekStart) return
     if (d.paymentStatus !== 'paid') return
     if (locationId && d.locationId !== locationId) return
     revenueByDate[d.date] = (revenueByDate[d.date] ?? 0) + d.totalPrice
