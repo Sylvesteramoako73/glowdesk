@@ -67,11 +67,15 @@ export default async function DashboardPage() {
   const activeLocationId = await getEffectiveLocationId()
 
   const [stats, todayApts, staffList, weekDays, nextApt] = await Promise.all([
-    getDashboardStats(activeLocationId),
-    getTodayAppointments(activeLocationId),
-    getStaffWithStats(activeLocationId),
-    getWeeklyRevenue(activeLocationId),
-    getNextAppointment(activeLocationId),
+    getDashboardStats(activeLocationId).catch(() => ({
+      todayRevenue: 0, todayBookings: 0, completedToday: 0, upcomingToday: 0,
+      monthlyRevenue: 0, revenueGrowth: 0, totalClients: 0, avgTransaction: 0,
+      staffCount: 0, availableStaff: 0,
+    })),
+    getTodayAppointments(activeLocationId).catch(() => []),
+    getStaffWithStats(activeLocationId).catch(() => []),
+    getWeeklyRevenue(activeLocationId).catch(() => []),
+    getNextAppointment(activeLocationId).catch(() => null),
   ])
 
   const today = new Date().toLocaleDateString('en-GH', { weekday: 'long', day: 'numeric', month: 'long' })
