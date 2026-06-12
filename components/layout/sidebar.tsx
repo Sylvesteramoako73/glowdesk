@@ -26,7 +26,7 @@ const nav: NavItem[] = [
   { href: '/apprentices',  label: 'Apprentices',   icon: GraduationCap,   roles: ['owner', 'manager', 'staff'] },
   { href: '/analytics',    label: 'Analytics',     icon: BarChart2,       roles: ['owner', 'manager'] },
   { href: '/automations',  label: 'Automations',   icon: Zap,             roles: ['owner', 'manager'] },
-  { href: '/marketing',    label: 'Marketing',     icon: Megaphone,       roles: ['owner', 'manager'] },
+  { href: '/content',      label: 'Marketing',     icon: Megaphone,       roles: ['owner', 'manager'] },
   { href: '/invoices',     label: 'Invoices',      icon: FileText,        roles: ['owner', 'manager'] },
   { href: '/payroll',      label: 'Payroll',       icon: DollarSign,      roles: ['owner', 'manager'] },
   { href: '/expenses',     label: 'Expenses',      icon: Receipt,         roles: ['owner', 'manager'] },
@@ -47,7 +47,7 @@ const NAV_GROUPS = [
   },
   {
     label: 'Growth',
-    hrefs: ['/analytics', '/automations', '/marketing'],
+    hrefs: ['/analytics', '/automations', '/content'],
   },
   {
     label: 'Finance',

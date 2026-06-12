@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const code  = searchParams.get('code')
   const error = searchParams.get('error')
 
-  if (error || !code) return redir('/marketing?tab=accounts&error=access_denied')
+  if (error || !code) return redir('/content?tab=accounts&error=access_denied')
 
   const appId     = process.env.FACEBOOK_APP_ID!
   const appSecret = process.env.FACEBOOK_APP_SECRET!
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     + `&code=${code}`
   )
   const tokenData = await tokenRes.json()
-  if (tokenData.error) return redir('/marketing?tab=accounts&error=token_exchange')
+  if (tokenData.error) return redir('/content?tab=accounts&error=token_exchange')
 
   // Exchange for long-lived token (60 day expiry)
   const longRes = await fetch(
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   const pagesRes  = await fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${userToken}`)
   const pagesData = await pagesRes.json()
 
-  if (!pagesData.data?.length) return redir('/marketing?tab=accounts&error=no_pages')
+  if (!pagesData.data?.length) return redir('/content?tab=accounts&error=no_pages')
 
   // Use the first page (salon owners typically have one)
   const page = pagesData.data[0]
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
 
   // Get tenantId from session cookie
   const user = await getSessionUser()
-  if (!user?.tenantId) return redir('/marketing?tab=accounts&error=not_authenticated')
+  if (!user?.tenantId) return redir('/content?tab=accounts&error=not_authenticated')
 
   // Store connection in Firestore
   await adminDb.collection('social_connections').doc(user.tenantId).set({
@@ -81,5 +81,5 @@ export async function GET(req: NextRequest) {
     },
   }, { merge: true })
 
-  return redir('/marketing?tab=accounts&connected=facebook')
+  return redir('/content?tab=accounts&connected=facebook')
 }

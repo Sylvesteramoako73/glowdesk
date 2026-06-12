@@ -4,7 +4,7 @@ export function GET() {
   const appId = process.env.FACEBOOK_APP_ID
   if (!appId) {
     return NextResponse.redirect(
-      `${process.env.NEXTAUTH_URL ?? 'https://app.glowdeskapp.online'}/marketing?tab=accounts&error=no_app_id`
+      `${process.env.NEXTAUTH_URL ?? 'https://app.glowdeskapp.online'}/content?tab=accounts&error=no_app_id`
     )
   }
 
