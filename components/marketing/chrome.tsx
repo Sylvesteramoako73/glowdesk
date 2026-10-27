@@ -54,7 +54,7 @@ export function CTA() {
       <div className="relative max-w-2xl mx-auto text-center">
         <Scissors className="h-10 w-10 text-teal-300 mx-auto mb-6" aria-hidden="true" />
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to grow your salon?</h2>
-        <p className="text-teal-100 mb-8 leading-relaxed">Join hundreds of salons across Ghana and West Africa already using GlowDesk to run smarter businesses.</p>
+        <p className="text-teal-100 mb-8 leading-relaxed">Be one of the first salons in Ghana to run your bookings, payments and staff in one place.</p>
         <Link href={`${APP_URL}/signup`}
           className="inline-flex items-center gap-2 h-12 px-8 bg-white text-teal-700 font-bold rounded-xl text-sm hover:bg-teal-50 transition-colors shadow-lg">
           Start your free trial <ArrowRight className="h-4 w-4" aria-hidden="true" />
