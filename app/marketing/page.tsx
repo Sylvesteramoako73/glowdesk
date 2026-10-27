@@ -2,38 +2,23 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Calendar, Users, BarChart2, CreditCard, Zap, Package,
-  Check, ArrowRight, Star, Scissors, Globe, Smartphone,
+  ArrowRight, Star, Globe, Smartphone,
 } from 'lucide-react'
+import type { Metadata } from 'next'
 import { OnboardingOverlay } from './onboarding'
+import { APP_URL, pageMetadata } from '@/lib/marketing/site'
+import { softwareApplicationLd } from '@/lib/marketing/plans'
+import { CTA } from '@/components/marketing/chrome'
+import { Pricing } from '@/components/marketing/pricing'
+import { FAQ } from '@/components/marketing/faq'
+import { JsonLd } from '@/components/marketing/shared'
 
-const APP_URL = 'https://app.glowdeskapp.online'
-
-// ─── Nav ─────────────────────────────────────────────────────────────────────
-function Nav() {
-  return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="GlowDesk" width={140} height={46} className="h-10 w-auto object-contain" priority />
-        </Link>
-        <nav className="hidden md:flex items-center gap-7 text-sm text-gray-600">
-          <a href="#features" className="hover:text-gray-900 transition-colors">Features</a>
-          <a href="#pricing"  className="hover:text-gray-900 transition-colors">Pricing</a>
-          <a href="#faq"      className="hover:text-gray-900 transition-colors">FAQ</a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Link href={`${APP_URL}/login`} className="hidden sm:block text-sm text-gray-600 hover:text-gray-900 transition-colors">
-            Sign in
-          </Link>
-          <Link href={`${APP_URL}/signup`}
-            className="flex items-center gap-1.5 h-9 px-4 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors">
-            Start free trial
-          </Link>
-        </div>
-      </div>
-    </header>
-  )
-}
+export const metadata: Metadata = pageMetadata({
+  path: '/',
+  title: 'Salon Management Software in Ghana | GlowDesk',
+  description:
+    'Salon software for Ghana: online booking with MoMo deposits, POS, loyalty, staff commission and WhatsApp reminders. 14 day free trial, from GHS 150.',
+})
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
@@ -42,7 +27,7 @@ function Hero() {
       <div className="absolute inset-0">
         <Image
           src="/images/salon-interior.jpg"
-          alt="Modern salon interior"
+          alt=""
           fill
           className="object-cover opacity-25"
           priority
@@ -59,7 +44,7 @@ function Hero() {
               Built for salons in Ghana &amp; West Africa
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-5">
-              Run your salon.<br />
+              Run your salon.{" "}<br />
               <span className="text-teal-400">Not spreadsheets.</span>
             </h1>
             <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-lg">
@@ -164,6 +149,9 @@ function Features() {
           <p className="text-teal-600 text-sm font-semibold uppercase tracking-widest mb-3">Everything you need</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">One tool for your whole salon</h2>
           <p className="text-gray-500 mt-3 max-w-xl mx-auto">Stop juggling WhatsApp, notebooks and Excel. GlowDesk replaces all of it.</p>
+          <Link href="/features" className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-teal-700 hover:underline">
+            Explore every feature <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
 
         <div className="relative rounded-3xl overflow-hidden mb-12 h-64 sm:h-80">
@@ -289,167 +277,20 @@ function Testimonials() {
   )
 }
 
-// ─── Pricing ──────────────────────────────────────────────────────────────────
-const PLANS = [
-  { name: 'Starter', price: 150, highlight: false, desc: 'For small salons just getting started.',
-    features: ['Up to 3 staff', 'Appointments & clients', 'Point of sale', 'Basic analytics', 'Online booking page'] },
-  { name: 'Pro', price: 350, highlight: true, desc: 'For growing salons that need more power.',
-    features: ['Unlimited staff', 'Everything in Starter', 'Payroll & expenses', 'Automations & SMS', 'Inventory management', 'Multi-location (up to 3)', 'Priority support'] },
-  { name: 'Enterprise', price: 700, highlight: false, desc: 'For salon chains and franchise businesses.',
-    features: ['Everything in Pro', 'Unlimited locations', 'Apprenticeship tracking', 'Custom integrations', 'Dedicated account manager', 'SLA support'] },
-]
-
-function Pricing() {
-  return (
-    <section id="pricing" className="py-24 px-4 sm:px-6 bg-white">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14">
-          <p className="text-teal-600 text-sm font-semibold uppercase tracking-widest mb-3">Simple pricing</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Pay as you grow</h2>
-          <p className="text-gray-500 mt-3">All plans include a 14-day free trial. No credit card required.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-          {PLANS.map(p => (
-            <div key={p.name} className={`rounded-2xl p-7 border ${p.highlight ? 'bg-teal-600 border-teal-600 shadow-xl shadow-teal-200' : 'bg-white border-gray-200 shadow-sm'}`}>
-              {p.highlight && <span className="inline-block text-xs font-semibold text-teal-600 bg-white px-2.5 py-1 rounded-full mb-4">Most popular</span>}
-              <h3 className={`font-bold text-lg mb-1 ${p.highlight ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-              <p className={`text-xs mb-5 ${p.highlight ? 'text-teal-100' : 'text-gray-500'}`}>{p.desc}</p>
-              <div className="mb-6">
-                <span className={`text-4xl font-bold ${p.highlight ? 'text-white' : 'text-gray-900'}`}>GHS {p.price}</span>
-                <span className={`text-sm ml-1 ${p.highlight ? 'text-teal-200' : 'text-gray-400'}`}>/mo</span>
-              </div>
-              <ul className="space-y-2.5 mb-8">
-                {p.features.map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm">
-                    <Check className={`h-4 w-4 mt-0.5 shrink-0 ${p.highlight ? 'text-teal-200' : 'text-teal-600'}`} />
-                    <span className={p.highlight ? 'text-teal-50' : 'text-gray-600'}>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href={`${APP_URL}/signup`}
-                className={`flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-semibold transition-colors ${p.highlight ? 'bg-white text-teal-700 hover:bg-teal-50' : 'bg-teal-600 text-white hover:bg-teal-700'}`}>
-                Get started <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── FAQ ──────────────────────────────────────────────────────────────────────
-const FAQS = [
-  { q: 'Do I need a credit card to start?', a: 'No. Your 14-day trial is completely free — no card required. You only pay when you decide to subscribe.' },
-  { q: 'Can I import my existing client data?', a: 'Yes. You can import clients via CSV, or add them one by one as they book.' },
-  { q: 'Does GlowDesk work for barbershops?', a: 'Absolutely. GlowDesk works for any appointment-based beauty business — salons, barbershops, spas, nail studios and more.' },
-  { q: 'Is my data safe?', a: 'Yes. All data is encrypted and stored securely on Google Cloud (Firebase). We never share your data with third parties.' },
-  { q: 'Can my clients book online?', a: 'Yes. Every salon gets a free public booking page. Share the link on WhatsApp or Instagram and clients book themselves.' },
-  { q: 'What payment methods do you accept?', a: 'We accept Paystack (cards, Mobile Money). GHS pricing — no foreign exchange surprises.' },
-]
-
-function FAQ() {
-  return (
-    <section id="faq" className="py-24 px-4 sm:px-6 bg-gray-50">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">Frequently asked questions</h2>
-        </div>
-        <div className="space-y-4">
-          {FAQS.map(f => (
-            <div key={f.q} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm">{f.q}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{f.a}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── CTA ──────────────────────────────────────────────────────────────────────
-function CTA() {
-  return (
-    <section className="relative py-24 px-4 sm:px-6 overflow-hidden">
-      <div className="absolute inset-0">
-        <Image
-          src="/images/salon-interior.jpg"
-          alt="Beautiful salon interior"
-          fill
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-teal-900/85" />
-      </div>
-      <div className="relative max-w-2xl mx-auto text-center">
-        <Scissors className="h-10 w-10 text-teal-300 mx-auto mb-6" />
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to grow your salon?</h2>
-        <p className="text-teal-100 mb-8 leading-relaxed">Join hundreds of salons across Ghana and West Africa already using GlowDesk to run smarter businesses.</p>
-        <Link href={`${APP_URL}/signup`}
-          className="inline-flex items-center gap-2 h-12 px-8 bg-white text-teal-700 font-bold rounded-xl text-sm hover:bg-teal-50 transition-colors shadow-lg">
-          Start your free trial <ArrowRight className="h-4 w-4" />
-        </Link>
-        <p className="text-teal-200 text-xs mt-4">14 days free · No credit card · Cancel anytime</p>
-      </div>
-    </section>
-  )
-}
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="bg-slate-900 px-4 sm:px-6 py-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row items-start justify-between gap-8 pb-10 border-b border-slate-700">
-          <div className="max-w-xs">
-            <Image src="/logo.png" alt="GlowDesk" width={130} height={44} className="h-9 w-auto object-contain brightness-0 invert mb-4" />
-            <p className="text-slate-400 text-sm leading-relaxed">Salon management software built for West African beauty businesses.</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
-            <div>
-              <p className="text-white font-semibold mb-3">Product</p>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#pricing"  className="hover:text-white transition-colors">Pricing</a></li>
-                <li><Link href={`${APP_URL}/signup`} className="hover:text-white transition-colors">Sign Up</Link></li>
-                <li><Link href={`${APP_URL}/login`}  className="hover:text-white transition-colors">Sign In</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-white font-semibold mb-3">Company</p>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-white font-semibold mb-3">Contact</p>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="mailto:hello@glowdeskapp.online" className="hover:text-white transition-colors">hello@glowdeskapp.online</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <p className="text-slate-500 text-xs text-center mt-8">© {new Date().getFullYear()} GlowDesk. All rights reserved.</p>
-      </div>
-    </footer>
-  )
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
     <div className="font-sans bg-white text-gray-900">
+      <JsonLd items={[softwareApplicationLd]} />
       <OnboardingOverlay />
-      <Nav />
       <Hero />
       <SocialProof />
       <Features />
       <HowItWorks />
       <Testimonials />
       <Pricing />
-      <FAQ />
+      <FAQ limit={6} />
       <CTA />
-      <Footer />
     </div>
   )
 }

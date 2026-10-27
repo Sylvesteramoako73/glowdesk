@@ -1,16 +1,21 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/marketing/site'
+import { Nav, Footer } from '@/components/marketing/chrome'
+import { LinkTracker } from '@/components/marketing/link-tracker'
 
 export const metadata: Metadata = {
-  title: 'GlowDesk — Salon Management Software',
-  description: 'Run your salon smarter. Appointments, clients, staff, inventory, payroll and analytics — all in one place. Start your 14-day free trial.',
-  openGraph: {
-    title: 'GlowDesk — Salon Management Software',
-    description: 'Run your salon smarter. Start your 14-day free trial.',
-    url: 'https://glowdeskapp.online',
-    siteName: 'GlowDesk',
-  },
+  metadataBase: new URL(SITE_URL),
+  title: 'GlowDesk | Salon Management Software',
+  description: 'Salon management software for beauty businesses in Ghana and West Africa.',
 }
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <div className="font-sans bg-white text-gray-900">
+      <Nav />
+      <main id="main">{children}</main>
+      <Footer />
+      <LinkTracker />
+    </div>
+  )
 }
