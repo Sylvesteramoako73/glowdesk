@@ -13,7 +13,7 @@ function isPublic(pathname: string) {
   return PUBLIC.some(p => pathname.startsWith(p))
 }
 
-export function middleware(req: NextRequest) {
+function route(req: NextRequest) {
   const session    = req.cookies.get('session')?.value
   const { pathname, hostname } = req.nextUrl
 
@@ -40,7 +40,8 @@ export function middleware(req: NextRequest) {
   // ── Marketing domain: rewrite into _site folder ──────────────────────────
   if (MARKETING_HOSTS.has(hostname)) {
     // Already an internal path or a static public asset — pass through
-    if (pathname.startsWith('/marketing') || pathname.startsWith('/images') || pathname.startsWith('/fonts') || pathname.startsWith('/logo')) {
+    if (pathname.startsWith('/marketing') || pathname.startsWith('/images') || pathname.startsWith('/fonts') || pathname.startsWith('/logo') ||
+        pathname.startsWith('/icon-') || pathname.startsWith('/apple-touch-icon') || pathname === '/manifest.json' || pathname === '/sw.js') {
       return NextResponse.next()
     }
 
@@ -83,6 +84,19 @@ export function middleware(req: NextRequest) {
   }
 
   return NextResponse.next()
+}
+
+/**
+ * Only the marketing site (glowdeskapp.online) and salon booking pages should appear in Google.
+ * Everything else, mainly the app at app.glowdeskapp.online and internal /marketing paths, gets noindex.
+ */
+export function middleware(req: NextRequest) {
+  const res = route(req)
+  const { hostname } = req.nextUrl
+  if (!MARKETING_HOSTS.has(hostname) && !BOOKING_HOSTS.has(hostname)) {
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  }
+  return res
 }
 
 export const config = {

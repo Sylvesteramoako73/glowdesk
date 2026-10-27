@@ -138,3 +138,20 @@
            rounded-xl hover:bg-red-700 transition-all cursor-pointer select-none shadow-sm;
   }
 }
+
+/* Marketing blog article typography */
+.gd-article { color: rgb(55 65 81); font-size: 1.0625rem; line-height: 1.8; }
+.gd-article > * + * { margin-top: 1.25rem; }
+.gd-article h2 { color: rgb(17 24 39); font-weight: 700; font-size: 1.75rem; line-height: 1.25; margin-top: 3rem; scroll-margin-top: 6rem; }
+.gd-article h3 { color: rgb(17 24 39); font-weight: 700; font-size: 1.25rem; line-height: 1.35; margin-top: 2.25rem; scroll-margin-top: 6rem; }
+.gd-article p:first-child { font-size: 1.1875rem; color: rgb(31 41 55); }
+.gd-article ul, .gd-article ol { padding-left: 1.4rem; }
+.gd-article ul { list-style: disc; }
+.gd-article ol { list-style: decimal; }
+.gd-article li + li { margin-top: 0.5rem; }
+.gd-article li::marker { color: rgb(13 148 136); }
+.gd-article strong { color: rgb(17 24 39); font-weight: 600; }
+.gd-article a { color: rgb(15 118 110); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.gd-article table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; display: block; overflow-x: auto; }
+.gd-article th, .gd-article td { border-bottom: 1px solid rgb(229 231 235); padding: 0.6rem 0.75rem; text-align: left; white-space: nowrap; }
+.gd-article th { background: rgb(249 250 251); color: rgb(17 24 39); font-weight: 600; }

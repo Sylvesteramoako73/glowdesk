@@ -1,17 +1,21 @@
 import type { Metadata, Viewport } from 'next'
-import { DM_Sans } from 'next/font/google'
+import localFont from 'next/font/local'
+import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
+// DM Sans, self hosted so builds never depend on Google Fonts
+const dmSans = localFont({
+  src: '../node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2',
   variable: '--font-sans',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
+  weight: '100 1000',
 })
 
+const GA_ID = 'G-M8YMDSJM9N'
+
 export const metadata: Metadata = {
-  title: 'GlowDesk — Salon Management',
+  title: 'GlowDesk | Salon Management',
   description: 'Professional beauty business management platform.',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'GlowDesk' },
@@ -40,6 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           {children}
         </ThemeProvider>
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="ga4" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_ID}');`}
+        </Script>
       </body>
     </html>
   )
