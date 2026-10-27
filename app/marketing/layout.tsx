@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: 'GlowDesk | Salon Management Software',
   description: 'Salon management software for beauty businesses in Ghana and West Africa.',
+  // Google Search Console ownership for https://glowdeskapp.online/
+  verification: { google: 'VVkRQ9XJMczfv8b4HftFueSM5fIH-vG6dId3QsifV2M' },
 }
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
