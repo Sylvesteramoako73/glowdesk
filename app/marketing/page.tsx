@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Calendar, Users, BarChart2, CreditCard, Zap, Package,
-  ArrowRight, Star, Globe, Smartphone,
+  ArrowRight, Check, Globe, Smartphone,
 } from 'lucide-react'
 import type { Metadata } from 'next'
 import { OnboardingOverlay } from './onboarding'
@@ -62,7 +62,7 @@ function Hero() {
             </div>
             <p className="text-xs text-slate-400 mt-4">No credit card required · Cancel anytime</p>
             <div className="flex items-center gap-6 mt-10">
-              {[{ value: '500+', label: 'Salons' }, { value: '14 days', label: 'Free trial' }, { value: '24/7', label: 'Support' }].map(s => (
+              {[{ value: 'GHS 150', label: 'From, per month' }, { value: '14 days', label: 'Free trial' }, { value: 'WhatsApp', label: 'Support' }].map(s => (
                 <div key={s.label}>
                   <p className="text-xl font-bold text-white">{s.value}</p>
                   <p className="text-xs text-slate-400">{s.label}</p>
@@ -103,27 +103,19 @@ function Hero() {
   )
 }
 
-// ─── Social proof strip ───────────────────────────────────────────────────────
+// ─── Built for Ghana strip ────────────────────────────────────────────────────
 function SocialProof() {
-  const faces = [11, 12, 25, 32, 47, 65]
+  const points = ['Prices in cedis', 'Mobile Money payments', 'WhatsApp reminders', 'Built for salons in Ghana']
   return (
-    <section className="bg-white border-b border-gray-100 py-8 px-4 sm:px-6">
-      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
-        <div className="flex -space-x-2">
-          {faces.map(n => (
-            <Image key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt="Salon owner" width={36} height={36}
-              className="rounded-full border-2 border-white object-cover" />
-          ))}
-        </div>
-        <div>
-          <div className="flex justify-center sm:justify-start gap-0.5 mb-1">
-            {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
-          </div>
-          <p className="text-sm text-gray-600">
-            Trusted by <span className="font-semibold text-gray-900">500+ salon owners</span> across West Africa
-          </p>
-        </div>
-      </div>
+    <section className="bg-white border-b border-gray-100 py-6 px-4 sm:px-6">
+      <ul className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-gray-600">
+        {points.map(p => (
+          <li key={p} className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-teal-600" aria-hidden="true" />
+            {p}
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
@@ -226,51 +218,40 @@ function HowItWorks() {
   )
 }
 
-// ─── Testimonials ─────────────────────────────────────────────────────────────
-const TESTIMONIALS = [
-  { name: 'Abena M.', role: 'Owner · Glow Beauty Studio, Accra',
-    avatar: 'https://api.dicebear.com/9.x/micah/png?seed=AbenaMensah&skinColor=brown&baseColor=brown',
-    body: 'I used to manage everything on WhatsApp and a notebook. GlowDesk changed everything — I can see my revenue, my staff and my clients all in one place.' },
-  { name: 'Efua A.', role: 'Owner · Prestige Cuts, Kumasi',
-    avatar: 'https://api.dicebear.com/9.x/micah/png?seed=EfuaAsante&skinColor=darkBrown&baseColor=brown',
-    body: 'The automatic appointment reminders alone saved us from at least 10 no-shows a month. Worth every pesewa.' },
-  { name: 'Ama S.', role: 'Owner · The Lash Studio, Takoradi',
-    avatar: 'https://api.dicebear.com/9.x/micah/png?seed=AmaSarkodie&skinColor=tawny&baseColor=brown',
-    body: 'Setup was incredibly fast. Within an hour I had my services, staff and booking page all ready. My clients love it.' },
-]
-
-function Testimonials() {
+// ─── Founding salons ──────────────────────────────────────────────────────────
+function FoundingSalons() {
+  const points = [
+    { title: 'Try everything free for 14 days', text: 'Set up your services, staff and booking page, and run real appointments before you pay anything.' },
+    { title: 'Help shape GlowDesk', text: 'Tell us what your salon needs. Feedback from our first salons decides what we build next.' },
+    { title: 'Support on WhatsApp', text: 'Questions while you set up? Message us on WhatsApp during working hours and talk to the people who build GlowDesk.' },
+  ]
   return (
     <section className="py-24 px-4 sm:px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <div className="relative rounded-3xl overflow-hidden h-56 sm:h-72 mb-14">
-          <Image
-            src="/images/salon-owner.jpg"
-            alt="Salon owner happy with GlowDesk"
-            fill
-            className="object-cover object-top"
-          />
+          <Image src="/images/salon-owner.jpg" alt="Salon owner at the front desk of her salon" fill sizes="(min-width: 1152px) 1152px, 100vw" className="object-cover object-top" />
           <div className="absolute inset-0 bg-teal-900/70 flex flex-col items-center justify-center text-center px-6">
-            <p className="text-teal-300 text-sm font-semibold uppercase tracking-widest mb-3">Loved by salons</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">What salon owners say</h2>
+            <p className="text-teal-300 text-sm font-semibold uppercase tracking-widest mb-3">Early access</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Become a founding salon</h2>
+            <p className="text-teal-50 mt-3 max-w-xl">GlowDesk is new, and we are welcoming our first salons in Ghana. Join early and help build the tool your salon needs.</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map(t => (
-            <div key={t.name} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
-              <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
+          {points.map(pt => (
+            <div key={pt.title} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-4">
+                <Check className="h-4 w-4" aria-hidden="true" />
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-1">&ldquo;{t.body}&rdquo;</p>
-              <div className="flex items-center gap-3">
-                <Image src={t.avatar} alt={t.name} width={40} height={40} className="rounded-full object-cover" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{t.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{t.role}</p>
-                </div>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">{pt.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{pt.text}</p>
             </div>
           ))}
+        </div>
+        <div className="text-center mt-10">
+          <Link href={`${APP_URL}/signup`}
+            className="inline-flex items-center gap-2 h-12 px-6 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-sm transition-colors">
+            Start as a founding salon <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </section>
@@ -287,7 +268,7 @@ export default function LandingPage() {
       <SocialProof />
       <Features />
       <HowItWorks />
-      <Testimonials />
+      <FoundingSalons />
       <Pricing />
       <FAQ limit={6} />
       <CTA />

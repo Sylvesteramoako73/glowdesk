@@ -35,7 +35,7 @@ const SLIDES = [
     body: 'Share your booking link on WhatsApp or Instagram. Clients pick their service, choose a time, and pay a deposit — all without calling you.',
     bg: 'from-blue-900 via-slate-900 to-slate-900',
     stats: [
-      { value: '80%', label: 'fewer no-shows' },
+      { value: 'Free', label: 'booking page on every plan' },
       { value: '24/7', label: 'bookings accepted' },
       { value: '2 min', label: 'to set up' },
     ],
@@ -43,10 +43,10 @@ const SLIDES = [
   {
     tag: 'Get paid faster',
     title: 'Accept Mobile Money deposits at booking',
-    body: 'Salons on GlowDesk collect deposits via MTN MoMo, Vodafone Cash or AirtelTigo. Money goes straight to the salon. No bank account needed.',
+    body: 'Salons on GlowDesk collect deposits via MTN MoMo, Telecel Cash or AirtelTigo Money. Money goes straight to the salon. No bank account needed.',
     bg: 'from-violet-900 via-slate-900 to-slate-900',
     stats: [
-      { value: 'MoMo', label: 'MTN · Vodafone · AirtelTigo' },
+      { value: 'MoMo', label: 'MTN · Telecel · AirtelTigo' },
       { value: 'GHS', label: 'Local currency pricing' },
       { value: '0%', label: 'Platform cut on deposits' },
     ],
@@ -54,7 +54,7 @@ const SLIDES = [
   {
     tag: 'Start today',
     title: 'Ready to grow your salon?',
-    body: '14-day free trial. No credit card. Cancel anytime. Join hundreds of salons in Ghana already running smarter with GlowDesk.',
+    body: '14 day free trial. No credit card. Cancel anytime. Be one of the first salons in Ghana to run smarter with GlowDesk.',
     bg: 'from-teal-900 via-teal-800 to-slate-900',
     isCta: true,
   },
