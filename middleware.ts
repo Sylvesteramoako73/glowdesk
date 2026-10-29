@@ -13,12 +13,26 @@ function isPublic(pathname: string) {
   return PUBLIC.some(p => pathname.startsWith(p))
 }
 
+// Files served from /public that never contain private data
+function isPublicAsset(pathname: string) {
+  return (
+    pathname === '/logo.png' ||
+    pathname === '/manifest.json' ||
+    pathname === '/sw.js' ||
+    pathname === '/apple-touch-icon.png' ||
+    pathname.startsWith('/icon-') ||
+    pathname.startsWith('/images/') ||
+    pathname.startsWith('/fonts/')
+  )
+}
+
 function route(req: NextRequest) {
   const session    = req.cookies.get('session')?.value
   const { pathname, hostname } = req.nextUrl
 
-  // Pass through static assets regardless of host
-  if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) {
+  // Pass through static assets regardless of host, so the logo, icons and
+  // manifest load on the login page for visitors who are not signed in yet
+  if (pathname.startsWith('/_next') || pathname.startsWith('/favicon') || isPublicAsset(pathname)) {
     return NextResponse.next()
   }
 
