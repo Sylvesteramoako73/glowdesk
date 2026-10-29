@@ -115,9 +115,9 @@ export function Sidebar({ user }: SidebarProps) {
           <Image
             src="/logo.png"
             alt="GlowDesk"
-            width={178}
-            height={44}
-            className="h-11 w-auto object-contain brightness-0 invert"
+            width={146}
+            height={36}
+            className="h-9 w-auto object-contain brightness-0 invert"
             priority
           />
         </Link>
