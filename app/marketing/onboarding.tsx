@@ -98,7 +98,7 @@ export function OnboardingOverlay() {
           {/* Logo on CTA slide */}
           {s.isCta && (
             <div className="mb-5">
-              <Image src="/logo.png" alt="GlowDesk" width={150} height={50} className="h-10 w-auto brightness-0 invert opacity-90" />
+              <Image src="/logo.png" alt="GlowDesk" width={162} height={40} className="h-10 w-auto brightness-0 invert opacity-90" />
             </div>
           )}
 

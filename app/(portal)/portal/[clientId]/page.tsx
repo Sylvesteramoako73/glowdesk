@@ -40,7 +40,7 @@ export default async function ClientPortalPage({ params }: { params: { clientId:
     <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <header className="flex items-center justify-between">
-        <Image src="/logo.png" alt="salon logo" width={130} height={44} className="h-9 w-auto object-contain" />
+        <Image src="/logo.png" alt="salon logo" width={146} height={36} className="h-9 w-auto object-contain" />
         <Link href={`/book`} className="btn-primary text-xs">Book Appointment</Link>
       </header>
 
