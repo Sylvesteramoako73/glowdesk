@@ -1,22 +1,28 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { adminAuth } from '@/lib/firebase-admin'
-import { getUsers, getUserRole } from '@/lib/actions/users'
+import { getSessionUser } from '@/lib/auth'
+import { getUsers } from '@/lib/actions/users'
 
 export const dynamic = 'force-dynamic'
 
+const noStore = { 'Cache-Control': 'private, no-store' }
+
 export async function GET() {
-  const sessionCookie = cookies().get('session')?.value
-  if (!sessionCookie) return NextResponse.json([], { status: 401 })
+  // getSessionUser verifies the session cookie and returns null when it is missing or invalid
+  const caller = await getSessionUser()
+  if (!caller) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: noStore })
+  }
+
+  // Only salon owners manage the team list, and only for their own salon
+  if (caller.role !== 'owner' || !caller.tenantId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: noStore })
+  }
 
   try {
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie)
-    const role    = await getUserRole(decoded.uid)
-    if (role !== 'owner') return NextResponse.json([], { status: 403 })
-
     const users = await getUsers()
-    return NextResponse.json(users)
-  } catch {
-    return NextResponse.json([], { status: 401 })
+    return NextResponse.json(users, { headers: noStore })
+  } catch (err) {
+    console.error('[api/users] failed to load team:', err)
+    return NextResponse.json({ error: 'Failed to load team' }, { status: 500, headers: noStore })
   }
 }

@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { updateUserRole } from '@/lib/actions/users'
-import type { AppUser, Role } from '@/lib/actions/users'
+import type { TeamMember, Role } from '@/lib/actions/users'
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
@@ -445,7 +445,7 @@ export default function SettingsPage() {
   const [passMsg, setPassMsg]         = useState('')
   const [passError, setPassError]     = useState('')
 
-  const [teamUsers, setTeamUsers]     = useState<AppUser[]>([])
+  const [teamUsers, setTeamUsers]     = useState<TeamMember[]>([])
   const [teamLoading, setTeamLoading] = useState(true)
   const [roleUpdating, setRoleUpdating] = useState<string | null>(null)
 
